@@ -168,8 +168,11 @@ jsforce.browser.init({
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection();
 conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
+  if (err) { return console.error(err); }
+  conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+    if (err) { return console.error(err); }
+    console.log(res);
+  });
 });</code></pre>
 </div>
 
@@ -178,17 +181,27 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
 
 <h4>Run</h4>
 
-<pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
-&lt;script&gt;
-jsforce.browser.init({ clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39; });
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+jsforce.browser.init({
+  clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39;,
+  redirectUri: &#39;[ your Salesforce registered redirect URI is here ]&#39;
+});
 jsforce.browser.on(&#39;connect&#39;, function(conn) {
   conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-    if (err) { return handleError(err); }
-    handleResult(res);
+    if (err) { return console.error(err); }
+    console.log(res);
   });
 });
-&lt;/script&gt;
-&lt;button onclick=&quot;javascript:jsforce.browser.login();&quot;&gt;Login&lt;/button&gt;
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;button onclick=&quot;javascript:jsforce.browser.login();&quot;&gt;Login&lt;/button&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
 </div>
@@ -198,13 +211,13 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 
 <h4>Run</h4>
 
-<pre><code class="lang-html">&lt;apex:page&gt;
+<pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
   &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
   &lt;script&gt;
 var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
 conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
+  if (err) { return console.error(err); }
+  console.log(res);
 });
   &lt;/script&gt;
 &lt;/apex:page&gt;
