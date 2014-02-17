@@ -27,7 +27,7 @@
 <script>
 jsforce.browser.init({
   clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
-  redirectUri: 'https://jsforce.github.io/callback.html',
+  redirectUri: 'https://jsforce-github-page.herokuapp.com/callback.html',
   proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
 });
 </script>
@@ -147,16 +147,10 @@ jsforce.browser.init({
 <div id="content">
   <div class="container">
 
-<div class="row">
-
-<div class="col-md-1"></div>
-
-<div class="col-md-10">
-
 <ul class="nav nav-tabs">
   <li class="active"><a href="#node-js" data-toggle="tab">Node.js</a></li>
-  <li><a href="#web-browser-vf" data-toggle="tab">Web Browser (Visualforce)</a></li>
-  <li><a href="#web-browser-oauth2" data-toggle="tab">Web Browser (Outer Website)</a></li>
+  <li><a href="#web-browser-oauth2" data-toggle="tab">Web Browser</a></li>
+  <li><a href="#web-browser-vf" data-toggle="tab">Visualforce</a></li>
   <li><a href="#cli" data-toggle="tab">Command Line Interface (CLI)</a></li>
 </ul>
 
@@ -179,26 +173,7 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
 });</code></pre>
 </div>
 
-<p><!-- Web Browser (Visualforce) --></p>
-<div class="tab-pane" id="web-browser-vf">
-
-<h4>Run</h4>
-
-<pre><code class="lang-html">&lt;apex:page&gt;
-  &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
-  &lt;script&gt;
-var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
-conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
-});
-  &lt;/script&gt;
-&lt;/apex:page&gt;
-</code></pre>
-
-</div>
-
-<p><!--- Web Browser (Outer Website) --></p>
+<!--- Web Browser -->
 <div class="tab-pane" id="web-browser-oauth2">
 
 <h4>Run</h4>
@@ -218,7 +193,26 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 
 </div>
 
-<p><!-- Command Line Interface (CLI) --></p>
+<!-- Web Browser (Visualforce) -->
+<div class="tab-pane" id="web-browser-vf">
+
+<h4>Run</h4>
+
+<pre><code class="lang-html">&lt;apex:page&gt;
+  &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
+  &lt;script&gt;
+var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});
+  &lt;/script&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+</div>
+
+<!-- Command Line Interface (CLI) -->
 <div class="tab-pane" id="cli">
 
 <h4>Setup</h4>
@@ -233,9 +227,7 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 </code></pre>
 </div>
 
-<p></div></p>
-<p></div></p>
-
+</div><!-- end of tab-content-->
 
   </div>
 </div>
