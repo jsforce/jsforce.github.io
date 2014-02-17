@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>Getting Started - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Getting Started - JSforce" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="/index.html" />
+<meta property="og:site_name" content="Getting Started - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/top.css">
+
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="/asset/jsforce/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+</script>
+
+</head>
+<body>
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-invese navbar-static-top"> 
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-btn" data-toggle="jpanel-menu" data-target=".navbar-collapse"> <span class="bar"></span> <span class="bar"></span> <span class="bar"></span> <span class="bar"></span> </a> 
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="navbar-collapse collapse"> 
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item">
+              
+              Getting Started
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/api/" class="menu-item">
+              
+              API Reference
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item">
+              
+              Download
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item">
+              
+              GitHub
+            </a>
+          </li>
+          
+        
+      </ul>
+    </div>
+    <!--/.navbar-collapse --> 
+  </div>
+</div>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <p class="text-center">
+      <img class="logo" src="/images/jsforce-logo.png">
+    </div>
+    <p class="lead">
+      Develop Salesforce apps with JavaScript,<br>
+      whether it's running on server or web browser. 
+    </p>
+    <p class="lead">
+      <a class="btn btn-default btn-lg" href="/download/">Download</a>
+      <a class="btn btn-default btn-lg" href="https://github.com/jsforce/jsforce">View on GitHub</a>
+    </p>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+<div class="row">
+
+<div class="col-md-1"></div>
+
+<div class="col-md-10">
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#node-js" data-toggle="tab">Node.js</a></li>
+  <li><a href="#web-browser-vf" data-toggle="tab">Web Browser (Visualforce)</a></li>
+  <li><a href="#web-browser-oauth2" data-toggle="tab">Web Browser (Outer Website)</a></li>
+  <li><a href="#cli" data-toggle="tab">Command Line Interface (CLI)</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- Node.js -->
+<div class="tab-pane active" id="node-js">
+<h4>Setup</h4>
+
+<pre><code>$ npm install jsforce
+</code></pre>
+
+<h4>Run</h4>
+
+<pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
+var conn = new jsforce.Connection();
+conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});</code></pre>
+</div>
+
+<p><!-- Web Browser (Visualforce) --></p>
+<div class="tab-pane" id="web-browser-vf">
+
+<h4>Run</h4>
+
+<pre><code class="lang-html">&lt;apex:page&gt;
+  &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
+  &lt;script&gt;
+var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});
+  &lt;/script&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+</div>
+
+<p><!--- Web Browser (Outer Website) --></p>
+<div class="tab-pane" id="web-browser-oauth2">
+
+<h4>Run</h4>
+
+<pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+jsforce.browser.init({ clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39; });
+jsforce.browser.on(&#39;connect&#39;, function(conn) {
+  conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+    if (err) { return handleError(err); }
+    handleResult(res);
+  });
+});
+&lt;/script&gt;
+&lt;button onclick=&quot;javascript:jsforce.browser.login();&quot;&gt;Login&lt;/button&gt;
+</code></pre>
+
+</div>
+
+<p><!-- Command Line Interface (CLI) --></p>
+<div class="tab-pane" id="cli">
+
+<h4>Setup</h4>
+
+<pre><code>$ npm install -g jsforce</code></pre>
+
+<h4>Run</h4>
+
+<pre><code>$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 5&#39;)&quot;
+
+{&quot;totalSize&quot;:5,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDtAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDtAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, Singapore&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDuAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDuAAK&quot;,&quot;Name&quot;:&quot;Edge Communications&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDvAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDvAAK&quot;,&quot;Name&quot;:&quot;Burlington Textiles Corp of America&quot;}]}
+</code></pre>
+</div>
+
+<p></div></p>
+<p></div></p>
+
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
