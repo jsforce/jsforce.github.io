@@ -143,6 +143,9 @@ jsforce.browser.init({
 
 <script>
 document.body.style.display = 'none';
+if (location.protocol === 'https:') {
+  location.protocol = 'http:';
+}
 </script>
 
   </div>
