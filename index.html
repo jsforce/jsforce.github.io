@@ -306,9 +306,7 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 <pre><code class="lang-shell">$ npm install -g jsforce
 </code></pre>
 <h3 id="example">Example</h3>
-<pre><code class="lang-shell">$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 2&#39;)&quot;
-{&quot;totalSize&quot;:2,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;}]}
-
+<pre><code class="lang-shell">
 $ jsforce
 &gt; .connect username@salesforce.example.org
 Password: *******
@@ -319,7 +317,11 @@ Logged in as : username@salesforce.example.org
   records: 
    [ { attributes: [Object],
        Id: &#39;0015000000KBQ5GAAX&#39;,
-       Name: &#39;Salesforce.com, Inc.&#39; } ] }
+       Name: &#39;GenePoint&#39; } ] }
+&gt; .exit
+
+$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 2&#39;)&quot;
+{&quot;totalSize&quot;:2,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;}]}
 </code></pre>
 
 </div>
