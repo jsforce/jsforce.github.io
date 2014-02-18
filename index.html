@@ -216,7 +216,7 @@ jsforce.browser.on('disconnect', function() {
 <h3 id="setup">Setup</h3>
 <pre><code class="lang-shell">$ npm install jsforce
 </code></pre>
-<h3 id="example-usage">Example Usage</h3>
+<h3 id="example">Example</h3>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection();
 conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res) {
@@ -232,7 +232,7 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
 
 <!--- Web Browser -->
 <div class="tab-pane" id="web-browser-oauth2">
-<h3 id="example-usage">Example Usage</h3>
+<h3 id="example">Example</h3>
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -260,7 +260,7 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 
 <!-- Web Browser (Visualforce) -->
 <div class="tab-pane" id="web-browser-vf">
-<h3 id="example-usage">Example Usage</h3>
+<h3 id="example">Example</h3>
 <pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
   &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
   &lt;script&gt;
@@ -277,7 +277,7 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 
 <!-- Web Browser (Canvas) -->
 <div class="tab-pane" id="web-browser-canvas">
-<h3 id="usage">Usage</h3>
+<h3 id="example">Example</h3>
 <pre><code class="lang-erb">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -305,7 +305,7 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 <h3 id="setup">Setup</h3>
 <pre><code class="lang-shell">$ npm install -g jsforce
 </code></pre>
-<h3 id="example-usage">Example Usage</h3>
+<h3 id="example">Example</h3>
 <pre><code class="lang-shell">$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 2&#39;)&quot;
 {&quot;totalSize&quot;:2,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;}]}
 
