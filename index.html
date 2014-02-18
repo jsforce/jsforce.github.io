@@ -205,20 +205,18 @@ jsforce.browser.on('disconnect', function() {
   <li class="active"><a href="#node-js" data-toggle="tab">Node.js</a></li>
   <li><a href="#web-browser-oauth2" data-toggle="tab">Web Browser</a></li>
   <li><a href="#web-browser-vf" data-toggle="tab">Visualforce</a></li>
-  <li><a href="#cli" data-toggle="tab">Command Line Interface (CLI)</a></li>
+  <li><a href="#web-browser-canvas" data-toggle="tab">Canvas</a></li>
+  <li><a href="#cli" data-toggle="tab">Command Line</a></li>
 </ul>
 
 <div class="tab-content">
 
 <!-- Node.js -->
 <div class="tab-pane active" id="node-js">
-<h4>Setup</h4>
-
-<pre><code>$ npm install jsforce
+<h3 id="setup">Setup</h3>
+<pre><code class="lang-shell">$ npm install jsforce
 </code></pre>
-
-<h4>Run</h4>
-
+<h3 id="example-usage">Example Usage</h3>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection();
 conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res) {
@@ -227,14 +225,14 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
     if (err) { return console.error(err); }
     console.log(res);
   });
-});</code></pre>
+});
+</code></pre>
+
 </div>
 
 <!--- Web Browser -->
 <div class="tab-pane" id="web-browser-oauth2">
-
-<h4>Run</h4>
-
+<h3 id="example-usage">Example Usage</h3>
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -262,9 +260,7 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 
 <!-- Web Browser (Visualforce) -->
 <div class="tab-pane" id="web-browser-vf">
-
-<h4>Run</h4>
-
+<h3 id="example-usage">Example Usage</h3>
 <pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
   &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
   &lt;script&gt;
@@ -279,19 +275,53 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 
 </div>
 
+<!-- Web Browser (Canvas) -->
+<div class="tab-pane" id="web-browser-canvas">
+<h3 id="usage">Usage</h3>
+<pre><code class="lang-erb">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta id=&quot;sf-canvas-signed-request&quot; content=&quot;&lt;%= verifiedSignedRequestJSON %&gt;&quot; /&gt;
+  &lt;script src=&quot;https://login.salesforce.com/canvas/sdk/js/29.0/canvas-all.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+var sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
+var conn = new jsforce.Connection({ signedRequest: sr });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return console.error(err); }
+  console.log(res);
+});
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+</div>
+
 <!-- Command Line Interface (CLI) -->
 <div class="tab-pane" id="cli">
-
-<h4>Setup</h4>
-
-<pre><code>$ npm install -g jsforce</code></pre>
-
-<h4>Run</h4>
-
-<pre><code>$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 5&#39;)&quot;
-
-{&quot;totalSize&quot;:5,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDtAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDtAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, Singapore&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDuAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDuAAK&quot;,&quot;Name&quot;:&quot;Edge Communications&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDvAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDvAAK&quot;,&quot;Name&quot;:&quot;Burlington Textiles Corp of America&quot;}]}
+<h3 id="setup">Setup</h3>
+<pre><code class="lang-shell">$ npm install -g jsforce
 </code></pre>
+<h3 id="example-usage">Example Usage</h3>
+<pre><code class="lang-shell">$ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 2&#39;)&quot;
+{&quot;totalSize&quot;:2,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDrAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDrAAK&quot;,&quot;Name&quot;:&quot;GenePoint&quot;},{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/001i0000009PyDsAAK&quot;},&quot;Id&quot;:&quot;001i0000009PyDsAAK&quot;,&quot;Name&quot;:&quot;United Oil &amp; Gas, UK&quot;}]}
+
+$ jsforce
+&gt; .connect username@salesforce.example.org
+Password: *******
+Logged in as : username@salesforce.example.org
+&gt; query(&quot;SELECT Id, Name FROM Account LIMIT 1&quot;)
+{ totalSize: 1,
+  done: true,
+  records: 
+   [ { attributes: [Object],
+       Id: &#39;0015000000KBQ5GAAX&#39;,
+       Name: &#39;Salesforce.com, Inc.&#39; } ] }
+</code></pre>
+
 </div>
 
 </div><!-- end of tab-content-->
