@@ -231,7 +231,7 @@ var conn = jsforce.Connection();
 <pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
 </code></pre>
 <p>When the script is loaded, <code>jsforce</code> object will be defined in global root.</p>
-<h4 id="outer-website">Outer Website</h4>
+<h4 id="external-website">External Website</h4>
 <p>If your app is located outside of Salesforce domain (that is, non-Visualforce app), 
 you need to register your app as &quot;Connected App&quot; in Salesforce setting.</p>
 <p>So first you have to register your app as OAuth2 client to the client ID.</p>
@@ -242,6 +242,9 @@ jsforce.browser.init({
   clientId: &#39;[your OAuth2 client ID]&#39;,
   redirectUri: &#39;[your OAuth2 redirect URI]&#39; 
 });
+
+// ...
+
 &lt;/script&gt;
 </code></pre>
 <p>NOTE: You may need <a href="https://github.com/jsforce/jsforce-ajax-proxy">jsforce-ajax-proxy</a> 
@@ -273,8 +276,38 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
   if (err) { return handleError(err); }
   handleResult(res);
 });
+
+// ...
+
   &lt;/script&gt;
+
 &lt;/apex:page&gt;
+</code></pre>
+<h4 id="salesforce-canvas">Salesforce Canvas</h4>
+<p>You can use JSforce in Salesforce Canvas app.
+Pass signed request to constructor to create authorized API connection.</p>
+<p>Note that the signed request value must be validated in server-side before passing to JSforce.
+Also you have to load canvas JS SDK officially provided from Salesforce.</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta id=&quot;sf-canvas-signed-request&quot; content=&quot;&lt;%= verifiedSignedRequestJSON %&gt;&quot; /&gt;
+  &lt;script src=&quot;https://login.salesforce.com/canvas/sdk/js/29.0/canvas-all.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+var sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
+var conn = new jsforce.Connection({ signedRequest: sr });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});
+
+//...
+
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 <h2 id="basic-usage">Basic Usage</h2>
 <p>When you established the connection, you can call APIs defined in connection object.</p>
@@ -291,12 +324,18 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 <p>JSforce supports <a href="http://promises-aplus.github.io/promises-spec/">Promise/A+</a> spec,
 and almost all API calls return Promise object.
 So you can chain the promise result by <code>then()</code> to handle the async response.</p>
-<pre><code class="lang-javascript">conn.query(&quot;SELECT Id, Name FROM Account LIMIT 10&quot;)
+<pre><code class="lang-javascript">conn.query(&quot;SELECT Id, Name FROM Account LIMIT 1&quot;)
   .then(function(res) {
-    //...
+    // receive resolved result from the promise, 
+    // then return another promise for continuing API execution.
+    return conn.sobject(&#39;Account&#39;).create({ Name: &#39;Another Account&#39; });
   })
-  .then(function() {
-    //...
+  .then(function(ret) { 
+    // handle final result of API execution
+    // ...
+  }, function(err) {
+    // catch any errors in execution
+    // ...
   });
 </code></pre>
 <h2 id="command-line-interface">Command Line Interface</h2>
