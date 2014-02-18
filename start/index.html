@@ -231,7 +231,6 @@ var conn = jsforce.Connection();
 <pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
 </code></pre>
 <p>When the script is loaded, <code>jsforce</code> object will be defined in global root.</p>
-<h4 id="external-website">External Website</h4>
 <p>If your app is located outside of Salesforce domain (that is, non-Visualforce app), 
 you need to register your app as &quot;Connected App&quot; in Salesforce setting.</p>
 <p>So first you have to register your app as OAuth2 client to the client ID.</p>
@@ -264,7 +263,7 @@ Afterward you can get authorized API connection by listening <code>connect</code
   });
 });
 </code></pre>
-<h4 id="visualforce">Visualforce</h4>
+<h3 id="visualforce">Visualforce</h3>
 <p>If you are writing HTML5 apps on Visualforce, API access token is automatically obtained as session ID.
 You can just pass it to Connection constructor to initialize.
 Also you can use static resources to upload JSforce JavaScript file to include.</p>
@@ -283,7 +282,7 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 
 &lt;/apex:page&gt;
 </code></pre>
-<h4 id="salesforce-canvas">Salesforce Canvas</h4>
+<h3 id="salesforce-canvas">Salesforce Canvas</h3>
 <p>You can use JSforce in Salesforce Canvas app.
 In order to create authorized API connection, pass signed request JSON value to Connection constructor</p>
 <p>Note that the signed request value must be validated in server-side before passing to JSforce.
