@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 
 
-<title>API Reference - JSforce</title>
+<title>Document - JSforce</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="description" content="Salesforce API Library for JavaScript Applications">
 <meta name="keywords" content="salesforce,javascript,api,node.js">
-<meta property="og:title" content="API Reference - JSforce" />
+<meta property="og:title" content="Document - JSforce" />
 <meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="http://jsforce.github.io/api/" />
+<meta property="og:url" content="http://jsforce.github.io/document/" />
 <meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
-<meta property="og:site_name" content="API Reference - JSforce" />
+<meta property="og:site_name" content="Document - JSforce" />
 <link rel="icon" type="image/png" href="/images/favicon.png">
 <link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
 <!--
@@ -28,8 +28,8 @@
 <script src="/asset/jsforce/jsforce.min.js"></script>
 <script>
 jsforce.browser.init({
-  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
-  redirectUri: 'https://jsforce.github.io/callback.html',
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRR0vtFfsvtVhkKTHPSz5gt5t6rMBSfyic.6YCd2J9YQEJ17kRk2cNEEKYLyD',
+  redirectUri: 'http://localhost:9778/callback.html',
   proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
 });
 </script>
@@ -71,9 +71,9 @@ jsforce.browser.init({
           
           
           <li class="active">
-            <a href="/api/" class="menu-item">
+            <a href="/document/" class="menu-item">
               
-              API Reference
+              Document
             </a>
           </li>
           
@@ -84,6 +84,16 @@ jsforce.browser.init({
             <a href="/download/" class="menu-item">
               
               Download
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item">
+              
+              API Reference
             </a>
           </li>
           
@@ -184,8 +194,8 @@ jsforce.browser.on('disconnect', function() {
   <div class="container">
     <div class="row">
       <div class="col-md-11">
-        <h2>API Reference</h2>
-        <p>JSforce API reference</p>
+        <h2>Document</h2>
+        <p>JSforce library document with brief usage examples of each API</p>
       </div>
     </div>
   </div>
@@ -1409,7 +1419,52 @@ $(function() {
 </script>
 
 
+<script >(function(){
+	/* Did we just livereload? */
+var log = !!(localStorage && console && console.log && true);
+if ( log && localStorage.getItem('/docpad-livereload/reloaded') === 'yes' ) {
+	localStorage.removeItem('/docpad-livereload/reloaded');
+	console.log('LiveReload completed at', new Date())
+}
 
+/* Listen for the regenerated event and perform a reload of the page when the event occurs */
+var listen = function(){
+	var primus = new Primus('/docpad-livereload');
+	primus.on('data', function(data){
+		if ( data && data.message ) {
+			if ( data.message === 'generateBefore' ) {
+				if ( log ) {
+					console.log('LiveReload started at', new Date());
+				}
+				if ( typeof document.getElementsByTagName !== 'undefined' ) {
+	document.getElementsByTagName('html')[0].className += ' wait';
+}
+			}
+			else if ( data.message === 'generateAfter' ) {
+				if ( log ) {
+					localStorage.setItem('/docpad-livereload/reloaded', 'yes');
+				}
+				document.location.reload();
+			}
+		}
+	});
+};
+	/* Inject socket into our page */
+var inject = function(){
+	var t = document.createElement('script');
+	t.type = 'text/javascript';
+	t.async = 'async';
+	t.src = '/primus/primus.js';
+	t.onload = listen;
+	var s = document.getElementsByTagName('script')[0];
+	s.parentNode.insertBefore(t, s);
+};
+	if ( typeof Primus !== 'undefined' ) {
+		listen();
+	} else {
+		inject();
+	}
+})();</script>
 
 </body>
 </html>
