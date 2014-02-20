@@ -237,7 +237,7 @@ var conn = jsforce.Connection();
 <p>Details for establishing API connection are written in <a href="/api/#connection">API Reference</a>.</p>
 <h3 id="web-browser">Web Browser</h3>
 <p>If you want to use JSforce in web browser JavaScript, 
-<a href="/download/">download JSforce JS library</a> and put it on the path in your website :</p>
+<a href="/download/">download JSforce JS library</a> and put it on any path in your website, and include in <code>&lt;script&gt;</code> tag:</p>
 <pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
 </code></pre>
 <p>When the script is loaded, <code>jsforce</code> object will be defined in global root.</p>
@@ -428,11 +428,26 @@ $(function() {
   $('#sidebar').on('click', 'li a', function(e) {
     e.preventDefault();
     var id = $(this).attr('href').substring(1);
-    var y = $('#'+id).offset().top - 70;
-    $('body').animate({ scrollTop: y }, 500);
+    adjustScroll(id);
   });
 
   $('body').scrollspy({ target: '#sidebar', offset: 90 })
+
+  var hash = location.hash;
+  if (hash) {
+    adjustScroll(hash.substring(1));
+  }
+
+  function adjustScroll(id) {
+    var el = $(document).find('#'+id);
+    if (el.size() === 0) { return; }
+    var y = el.offset().top - 70;
+    $('body').animate({ scrollTop: y }, 500, function() {
+      var y = window.scrollY;
+      location.hash = '#'+id;
+      window.scrollTo(0, y);
+    });
+  }
 
 });
   </script>
