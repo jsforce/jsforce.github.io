@@ -1385,6 +1385,64 @@ by using <code>Streaming#Topic(topicName)</code> and <code>Streaming-Topic#subsc
 
 
 <h2 id="tooling-api">Tooling API</h2>
+<p>Tooling API is used to build custom development tools for Salesforce platform,
+for example building custom Apex Code / Visualforce page editor.</p>
+<p>Tooling API has almost same interface as usual REST API,
+so CRUD operation, query, and describe can be done also for these developer objects.</p>
+<h3 id="crud-to-tooling-objects">CRUD to Tooling Objects</h3>
+<p>You can create/retrieve/update/delete records in tooling objects (e.g. ApexCode, ApexPage).</p>
+<p>To get reference of tooling object, use <code>Tooling#sobject(sobjectType)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+var apexBody = [
+  &quot;public class TestApex {&quot;,
+  &quot;  public string sayHello() {&quot;,
+  &quot;    return &#39;Hello&#39;;&quot;,
+  &quot;  }&quot;,
+  &quot;}&quot;
+].join(&#39;\n&#39;);
+conn.tooling.sobject(&#39;ApexClass&#39;).create({
+  body: apexBody
+}, function(err, res) {
+  if (err) { return console.error(err); }
+  console.log(res);
+});
+</code></pre>
+<h3 id="query-tooling-objects">Query Tooling Objects</h3>
+<p>Querying records in tooling objects is also supported.
+Use <code>Tooling#query(soql)</code> or <code>SObject#find(filters, fields)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+conn.tooling.sobject(&#39;ApexTrigger&#39;)
+  .find({ TableEnumOrId: &quot;Lead&quot; })
+  .execute(function(err, records) {
+    if (err) { return console.error(err); }
+    console.log(&quot;fetched : &quot; + records.length);
+    for (var i=0; i &lt; records.length; i++) {
+      var record = records[i];
+      console.log(&#39;Id: &#39; + record.Id);
+      console.log(&#39;Name: &#39; + record.Name);
+    }
+  });
+</code></pre>
+<h3 id="describe-tooling-objects">Describe Tooling Objects</h3>
+<p>Describing all tooling objects in the organization is done by calling <code>Tooling#describeGlobal()</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+conn.tooling.describeGlobal(function(err, res) {
+  if (err) { return console.error(err); }
+  console.log(&#39;Num of tooling objects : &#39; + res.sobjects.length);
+  // ...
+});
+</code></pre>
+<p>Describing each object detail is done by calling <code>SObject#describe()</code> to tooling object reference,
+or just calling <code>Tooling#describeSObject(sobjectType)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+conn.tooling.sobject(&#39;ApexPage&#39;).describe(function(err, meta) {
+  if (err) { return console.error(err); }
+  console.log(&#39;Label : &#39; + meta.label);
+  console.log(&#39;Num of Fields : &#39; + meta.fields.length);
+  // ...
+});
+</code></pre>
+<h3 id="execute-anonymous-apex">Execute Anonymous Apex</h3>
 <p>You can use Tooling API to execute anonymous Apex Code, by passing apex code string text to <code>Tooling#executeAnonymous</code>.</p>
 <pre><code class="lang-javascript">/* @interactive */
 // execute anonymous Apex Code
