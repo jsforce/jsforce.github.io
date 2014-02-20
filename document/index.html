@@ -210,7 +210,8 @@ jsforce.browser.on('disconnect', function() {
       <div class="col-md-9">
 <h2 id="connection">Connection</h2>
 <h3 id="username-and-password-login">Username and Password Login</h3>
-<p>When you have Salesforce username and password (and maybe security token if required), you can use <code>Connection#login(username, password)</code> to establish connection to Salesforce.</p>
+<p>When you have Salesforce username and password (and maybe security token if required),
+you can use <code>Connection#login(username, password)</code> to establish connection to Salesforce.</p>
 <p>By default, it uses SOAP login API (so no OAuth2 client information is required).</p>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection({
@@ -254,7 +255,8 @@ conn.login(username, password, function(err, userInfo) {
 });
 </code></pre>
 <h3 id="session-id">Session ID</h3>
-<p>If Salesforce session ID and its server URL information is passed from Salesforce (from &#39;Custom Link&#39; or something), you can pass it to constructor.</p>
+<p>If Salesforce session ID and its server URL information is passed from Salesforce (from &#39;Custom Link&#39; or something),
+you can pass it to constructor.</p>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection({
   serverUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
@@ -262,7 +264,8 @@ var conn = new jsforce.Connection({
 });
 </code></pre>
 <h3 id="access-token">Access Token</h3>
-<p>After the login API call or OAuth2 authorization, you can get Salesforce access token and its instance URL. Next time you can use them to establish connection.</p>
+<p>After the login API call or OAuth2 authorization, you can get Salesforce access token and its instance URL.
+Next time you can use them to establish connection.</p>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection({
   instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
@@ -289,17 +292,20 @@ conn.on(&quot;refresh&quot;, function(accessToken, res) {
 });
 </code></pre>
 <h3 id="logout">Logout</h3>
-<p><code>Connection#logout()</code> to logout from server and invalidate current session. Currently this method only works for SOAP API session.</p>
+<p><code>Connection#logout()</code> to logout from server and invalidate current session.
+Currently this method only works for SOAP API session.</p>
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection({
   sessionId : &#39;&lt;session id to logout&gt;&#39;,
-  serverUrl : &#39;&lt;your Salesforce Server url to logout is here&gt;&#39;
+  serverUrl : &#39;&lt;your Salesforce Server url to logout&gt;&#39;
 });
 conn.logout(function(err) {
   if (err) { return console.error(err); }
   // now the session has been expired.
 });
 </code></pre>
+
+
 <h2 id="oauth2">OAuth2</h2>
 <p>(Following examples are assuming running on express.js framework.)</p>
 <h3 id="authorization-request">Authorization Request</h3>
@@ -343,6 +349,8 @@ app.get(&#39;/oauth2/callback&#39;, function(req, res) {
   });
 });
 </code></pre>
+
+
 <h2 id="query">Query</h2>
 <h3 id="using-soql">Using SOQL</h3>
 <p>By using <code>Connection#query(soql)</code>, you can achieve very basic SOQL query to fetch Salesforce records.</p>
@@ -527,6 +535,8 @@ conn.sobject(&quot;Contact&quot;)
     }
   });
 </code></pre>
+
+
 <h2 id="search">Search</h2>
 <p><code>Connection#search</code> enables you to search records with SOSL in multiple objects.</p>
 <pre><code class="lang-javascript">/* @interactive */
@@ -537,6 +547,8 @@ conn.search(&quot;FIND {Un*} IN ALL FIELDS RETURNING Account(Id, Name), Lead(Id,
   }
 );
 </code></pre>
+
+
 <h2 id="crud">CRUD</h2>
 <p>JSforce supports basic &quot;CRUD&quot; operation for records in Salesforce.
 It also supports multiple record manipulation, but it consumes one API request per record.
@@ -672,6 +684,8 @@ function(err, rets) {
   // ...
 });
 </code></pre>
+
+
 <h2 id="describe">Describe</h2>
 <p>Metadata description API for Salesforce object.</p>
 <h3 id="describe-sobject">Describe SObject</h3>
@@ -731,6 +745,8 @@ conn.describeGlobal$.clear();
 <pre><code class="lang-javascript">// Delete all API caches in connection.
 conn.cache.clear();
 </code></pre>
+
+
 <h2 id="identity">Identity</h2>
 <p><code>Connection#identity()</code> is available to get current API session user identity information.</p>
 <pre><code class="lang-javascript">/* @interactive */
@@ -742,6 +758,8 @@ conn.identity(function(err, res) {
   console.log(&quot;display name: &quot; + res.display_name);
 });
 </code></pre>
+
+
 <h2 id="history">History</h2>
 <h3 id="recently-accessed-records">Recently Accessed Records</h3>
 <p><code>SObject#recent()</code> returns recently accessed records in the SObject.</p>
@@ -777,6 +795,8 @@ conn.sobject(&#39;Account&#39;).deleted(&#39;2014-02-01&#39;, &#39;2014-02-15&#3
   console.log(&quot;Deleted records : &quot; + res.deletedRecords.length);
 });
 </code></pre>
+
+
 <h2 id="analytics-api">Analytics API</h2>
 <p>By using Analytics API, you can get the output result from a report registered in Salesforce.</p>
 <h3 id="get-recently-used-reports">Get Recently Used Reports</h3>
@@ -806,7 +826,8 @@ conn.analytics.report(reportId).describe(function(err, meta) {
   console.log(meta.reportExtendedMetadata);
 });
 </code></pre>
-<h3 id="execute-report-sync-">Execute Report (Sync)</h3>
+<h3 id="execute-report">Execute Report</h3>
+<h4 id="execute-synchronously">Execute Synchronously</h4>
 <p>By calling <code>Analytics-Report#execute(options)</code>, the report is exected in Salesforce, and returns executed result synchronously.
 Please refer to Analytics API document about the format of retruning result.</p>
 <pre><code class="lang-javascript">/* @interactive */
@@ -824,7 +845,7 @@ report.execute(function(err, result) {
   // ...
 });
 </code></pre>
-<h4 id="retrieve-detail-rows-in-execution">Retrieve Detail Rows in Execution</h4>
+<h4 id="include-detail-rows-in-execution">Include Detail Rows in Execution</h4>
 <p>Setting <code>details</code> to true in <code>options</code>, it returns execution result with detail rows.</p>
 <pre><code class="lang-javascript">/* @interactive */
 // execute report synchronously with details option,
@@ -868,7 +889,7 @@ report.execute({ metadata : metadata }, function(err, result) {
   // ...
 });
 </code></pre>
-<h3 id="execute-report-async-">Execute Report (Async)</h3>
+<h4 id="execute-asynchronously">Execute Asynchronously</h4>
 <p><code>Analytics-Report#executeAsync(options)</code> executes the report asynchronously in Salesforce,
 registering an instance to the report to lookup the executed result in future.</p>
 <pre><code class="lang-javascript">/* @interactive */
@@ -884,6 +905,8 @@ report.executeAsync({ details: true }, function(err, instance) {
   // ...
 });
 </code></pre>
+<p>Afterward use <code>Analytics-Report#instance(instanceId)</code>
+and call <code>Analytics-ReportInstance#retrieve()</code> to get the executed result.</p>
 <pre><code class="lang-javascript">/* @interactive */
 // retrieve asynchronously executed result afterward.
 report.instance(instanceId).retrieve(function(err, result) {
@@ -896,8 +919,13 @@ report.instance(instanceId).retrieve(function(err, result) {
   // ...
 });
 </code></pre>
+
+
 <h2 id="apex-rest">Apex REST</h2>
-<p>If you have a static Apex class in Salesforce and are exposing it using &quot;Apex REST&quot; feature, you can call it by using <code>Apex#get(path)</code>, <code>Apex#post(path, body)</code>, <code>Apex#put(path, body)</code>, <code>Apex#patch(path, body)</code>, and <code>Apex#del(path, body)</code> (or its synonym <code>Apex#delete(path, body)</code>) through <code>apex</code> API object in connection object.</p>
+<p>If you have a static Apex class in Salesforce and are exposing it using &quot;Apex REST&quot; feature,
+you can call it by using <code>Apex#get(path)</code>, <code>Apex#post(path, body)</code>, <code>Apex#put(path, body)</code>,
+<code>Apex#patch(path, body)</code>, and <code>Apex#del(path, body)</code> (or its synonym <code>Apex#delete(path, body)</code>)
+through <code>apex</code> API object in connection object.</p>
 <pre><code class="lang-javascript">/* @interactive */
 // body payload structure is depending to the Apex REST method interface.
 var body = { title: &#39;hello&#39;, num : 1 };
@@ -907,9 +935,12 @@ conn.apex.post(&quot;/MyTestApexRest/&quot;, body, function(err, res) {
   // the response object structure depends on the definition of apex class
 });
 </code></pre>
+
+
 <h2 id="bulk-api">Bulk API</h2>
-<p>JSforce package also supports Bulk API. It is not only mapping each Bulk API endpoint in low level, but also introducing utility interface in bulk load operations.</p>
-<h3 id="loading-from-records">Loading From Records</h3>
+<p>JSforce package also supports Bulk API. It is not only mapping each Bulk API endpoint in low level,
+but also introducing utility interface in bulk load operations.</p>
+<h3 id="load-from-records">Load From Records</h3>
 <p>First, assume that you have record set in array object to insert into Salesforce.</p>
 <pre><code class="lang-javascript">//
 // Records to insert in bulk.
@@ -921,8 +952,10 @@ var accounts = [
 ...
 ];
 </code></pre>
-<p>You can use <code>SObject#create(record)</code>, but it consumes API quota per record, so not practical for large set of records. We can use bulk API interface to load them.</p>
-<p>Similar to Salesforce Bulk API, first create bulk job by <code>Bulk#createJob(sobjectType, operation)</code> through <code>bulk</code> API object in connection object.</p>
+<p>You can use <code>SObject#create(record)</code>, but it consumes API quota per record,
+so not practical for large set of records. We can use bulk API interface to load them.</p>
+<p>Similar to Salesforce Bulk API, first create bulk job by <code>Bulk#createJob(sobjectType, operation)</code>
+through <code>bulk</code> API object in connection object.</p>
 <p>Next, create a new batch in the job, by calling <code>Bulk-Job#createBatch()</code> through the job object created previously.</p>
 <pre><code class="lang-javascript">var job = conn.bulk.createJob(&quot;Account&quot;, &quot;insert&quot;);
 var batch = job.createBatch();
@@ -975,8 +1008,9 @@ batch.on(&quot;response&quot;, function(rets) { // fired when batch finished and
   // ...
 });
 </code></pre>
-<h3 id="loading-from-csv-file">Loading From CSV File</h3>
-<p>It also supports bulk loading from CSV file. Just use CSV file input stream as <code>input</code> argument in <code>Bulk#load(sobjectType, operation, input)</code>, instead of passing records in array.</p>
+<h3 id="load-from-csv-file">Load From CSV File</h3>
+<p>It also supports bulk loading from CSV file. Just use CSV file input stream as <code>input</code> argument 
+in <code>Bulk#load(sobjectType, operation, input)</code>, instead of passing records in array.</p>
 <pre><code class="lang-javascript">//
 // Create readable stream for CSV file to upload
 //
@@ -996,7 +1030,8 @@ conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;, csvFileIn, function(err,
   // ...
 });
 </code></pre>
-<p><code>Bulk-Batch#stream()</code> returns a Node.js standard writable stream which accepts batch input. You can pipe input stream to it afterward.</p>
+<p><code>Bulk-Batch#stream()</code> returns a Node.js standard writable stream which accepts batch input.
+You can pipe input stream to it afterward.</p>
 <pre><code class="lang-javascript">var batch = conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;);
 batch.on(&quot;response&quot;, function(rets) { // fired when batch finished and result retrieved
   if (err) { return console.error(err); }
@@ -1013,7 +1048,7 @@ batch.on(&quot;response&quot;, function(rets) { // fired when batch finished and
 //
 csvFileIn.pipe(batch.stream());
 </code></pre>
-<h3 id="updating-deleting-queried-records">Updating / Deleting Queried Records</h3>
+<h3 id="update-delete-queried-records">Update / Delete Queried Records</h3>
 <p>If you want to update / delete records in Salesforce which match specified condition in bulk, 
 now you don&#39;t have to write a code which download &amp; upload records information. 
 <code>Query#update(mapping)</code> / <code>Query#destroy()</code> will directly manipulate records.</p>
@@ -1068,7 +1103,9 @@ conn.sobject(&#39;Task&#39;)
       // ...
     });
 </code></pre>
-<p>If you are creating query object from SOQL by using <code>Connection#query(soql)</code>, the bulk delete/update operation cannot be achieved because no sobject type information available initially. You can avoid it by passing optional argument <code>sobjectType</code> in <code>Query#destroy(sobjectType)</code> or <code>Query#update(mapping, sobjectType)</code>.</p>
+<p>If you are creating query object from SOQL by using <code>Connection#query(soql)</code>,
+the bulk delete/update operation cannot be achieved because no sobject type information available initially.
+You can avoid it by passing optional argument <code>sobjectType</code> in <code>Query#destroy(sobjectType)</code> or <code>Query#update(mapping, sobjectType)</code>.</p>
 <pre><code class="lang-javascript">/* @interactive */
 conn.query(&quot;SELECT Id FROM Account WHERE CreatedDate = TODAY&quot;)
     .destroy(&#39;Account&#39;, function(err, rets) {
@@ -1087,6 +1124,8 @@ conn.query(&quot;SELECT Id FROM Task WHERE ActivityDate = TODAY&quot;)
 </code></pre>
 <p>NOTE: Be careful when using this feature not to break/lose existing data in Salesforce.
 Careful testing is recommended before applying the code to your production environment.</p>
+
+
 <h2 id="chatter-api">Chatter API</h2>
 <p>Chatter API resources can be accessed via <code>Chatter#resource(path)</code>.
 The path for the resource can be a relative path from <code>/services/data/vX.X/chatter/</code>, <code>/services/data/</code>, or site-root relative path,
@@ -1200,16 +1239,151 @@ conn.chatter.batch([
   console.log(&quot;request #3 - current Page URL: &quot; + results[2].result.currentPageUrl);
 });
 </code></pre>
+
+
+<h2 id="metadata-api">Metadata API</h2>
+<h3 id="create-metadata">Create Metadata</h3>
+<p>To newly create metadata objects, use <code>Metadata#create(type, metadata)</code>.
+Metadata format for each metadata types are written in Metadata API document.</p>
+<p>By default it returns asynchronous result ids with current statuses,
+which can be used for later execution status query.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// creating metadata in array
+var metadata = [{
+  fullName: &#39;TestObject1__c&#39;,
+  label: &#39;Test Object 1&#39;,
+  pluralLabel: &#39;Test Object 1&#39;,
+  nameField: {
+    type: &#39;Text&#39;,
+    label: &#39;Test Object Name&#39;
+  },
+  deploymentStatus: &#39;Deployed&#39;,
+  sharingModel: &#39;ReadWrite&#39;
+}, {
+  fullName: &#39;TestObject2__c&#39;,
+  label: &#39;Test Object 2&#39;,
+  pluralLabel: &#39;Test Object 2&#39;,
+  nameField: {
+    type: &#39;AutoNumber&#39;,
+    label: &#39;Test Object #&#39;
+  },
+  deploymentStatus: &#39;InDevelopment&#39;,
+  sharingModel: &#39;Private&#39;
+}];
+
+// request creating metadata and receive execution ids &amp; statuses
+var asyncResultIds = [];
+conn.metadata.create(&#39;CustomObject&#39;, metadata, function(err, results) {
+  if (err) { console.err(err); }
+  for (var i=0; i &lt; results.length; i++) {
+    var result = results[i];
+    console.log(&#39;id: &#39; + result.id);
+    console.log(&#39;done ? : &#39; + result.done);
+    console.log(&#39;state : &#39; + result.state); console.log(results);
+    // save for later status check 
+    asyncResultIds.push(result.id);
+  }
+});
+</code></pre>
+<p>And then you can check creation statuses by <code>Metadata#checkStatus(asyncResultIds)</code>,
+and wait their completion by calling <code>Metadata-AsyncResultLocator#complete()</code> for returned object.</p>
+<pre><code class="lang-javascript">/* @interactive */
+conn.metadata.checkStatus(asyncResultIds).complete(function(err, results) {
+  if (err) { console.error(err); }
+  for (var i=0; i &lt; results.length; i++) {
+    var result = results[i];
+    console.log(&#39;id: &#39; + result.id);
+    console.log(&#39;done ? : &#39; + result.done);
+    console.log(&#39;state : &#39; + result.state);
+  }
+});
+</code></pre>
+<p>Or you can directly apply <code>Metadata-AsyncResultLocator#complete()</code> call for the locator object
+returned from <code>Metadata#create()</code> call.</p>
+<pre><code class="lang-javascript">/* @interactive */
+conn.metadata.create(&#39;CustomObject&#39;, metadata).complete(function(err, results) {
+  if (err) { console.err(err); }
+  console.log(results); 
+});
+`
+</code></pre>
+<h3 id="update-metadata">Update Metadata</h3>
+<p><code>Metadata#update(type, updateMetadata)</code> can be used for updating existing metadata objects.</p>
+<pre><code>/* @interactive */
+var updateMetadata = [{
+  currentName: &#39;TestObject1__c.AutoNumberField__c&#39;,
+  metadata: {
+    type: &#39;Text&#39;,
+    fullName: &#39;TestObject2__c.AutoNumberField2__c&#39;,
+    label: &#39;Auto Number #2&#39;,
+    length: 50
+  }
+}];
+conn.metadata.update(&#39;CustomField&#39;, updateMetadata).complete(function(err, results) {
+  if (err) { console.error(err); }
+  for (var i=0; i &lt; results.length; i++) {
+    var result = results[i];
+    console.log(&#39;id: &#39; + result.id);
+    console.log(&#39;done ? : &#39; + result.done);
+    console.log(&#39;state : &#39; + result.state);
+  }
+});
+</code></pre><h3 id="delete-metadata">Delete Metadata</h3>
+<p><code>Metadata#delete(type, updateMetadata)</code> (or its synonym of <code>Metadata#del()</code>)
+can be used for deleting existing metadata objects.</p>
+<pre><code class="lang-javascript">/* @interactive */
+var metadata = [{
+  fullName: &#39;TestObject1__c&#39;,
+}, {
+  fullName: &#39;TestObject2__c&#39;,
+}];
+conn.metadata.delete(&#39;CustomObject&#39;, metadata).complete(function(err, results) {
+  if (err) { console.error(err); }
+  for (var i=0; i &lt; results.length; i++) {
+    var result = results[i];
+    console.log(&#39;id: &#39; + result.id);
+    console.log(&#39;done ? : &#39; + result.done);
+    console.log(&#39;state : &#39; + result.state);
+  }
+});
+</code></pre>
+<h3 id="retrieve-deploy-metadata-file-based-">Retrieve / Deploy Metadata (File-based)</h3>
+<p>You can retrieve metadata information which is currently registered in Salesforce,
+<code>Metadata#retrieve(options)</code> command can be used.</p>
+<pre><code class="lang-javascript">var fs = require(&#39;fs&#39;);
+conn.metadata.retrieve({ packageNames: [ &#39;My Test Package&#39; ] })
+             .stream().pipe(fs.createWriteStream(&quot;./path/to/MyPackage.zip&quot;));
+</code></pre>
+<p>If you have metadata definition files in your file system, create zip file from them 
+and call <code>Metadata#deploy(zipIn, options)</code> to deploy all of them.</p>
+<pre><code class="lang-javascript">var fs = require(&#39;fs&#39;);
+var zipStream = fs.createReadStream(&quot;./path/to/MyPackage.zip&quot;);
+conn.metadata.deploy(zipStream, { runTests: [ &#39;MyApexTriggerTest&#39; ] })
+  .complete(function(err, result) {
+    if (err) { console.error(err); }
+    console.log(&#39;done ? :&#39; + result.done);
+    console.log(&#39;success ? : &#39; + result.true);
+    console.log(&#39;state : &#39; + result.state);
+    console.log(&#39;component errors: &#39; + result.numberComponentErrors);
+    console.log(&#39;components deployed: &#39; + result.numberComponentsDeployed);
+    console.log(&#39;tests completed: &#39; + result.numberTestsCompleted);
+  });
+</code></pre>
+
+
 <h2 id="streaming-api">Streaming API</h2>
-<p>You can subscribe topic and receive message from Salesforce Streaming API, by using <code>Streaming-Topic#subscribe(listener)</code>.</p>
-<p>Before the subscription, you should insert appropriate PushTopic record (in this example, &quot;InvoiceStatementUpdates&quot;) as written in Streaming API guide.</p>
+<p>You can subscribe topic and receive message from Salesforce Streaming API,
+by using <code>Streaming#Topic(topicName)</code> and <code>Streaming-Topic#subscribe(listener)</code>.</p>
+<p>Before the subscription, you should insert appropriate PushTopic record 
+(in this example, &quot;InvoiceStatementUpdates&quot;) as written in <a href="http://www.salesforce.com/us/developer/docs/api_streaming/">Streaming API guide</a>.</p>
 <pre><code class="lang-javascript">conn.streaming.topic(&quot;InvoiceStatementUpdates&quot;).subscribe(function(message) {
   console.log(&#39;Event Type : &#39; + message.event.type);
   console.log(&#39;Event Created : &#39; + message.event.createdDate);
   console.log(&#39;Object Id : &#39; + message.sobject.Id);
 });
 </code></pre>
-<p>NOTE: Before version 0.6, there are <code>Connection#topic(topicName)</code> to access streaming topic object, and <code>Connection#subscribe(topicName, listener)</code> is used to subscribe altenatively. These methods are now obsolete and use <code>Streaming#topic(topicName)</code> and <code>Streaming#subscribe(topicName, listener)</code> through <code>streaming</code> API object in connection object instead.</p>
+
+
 <h2 id="tooling-api">Tooling API</h2>
 <p>You can use Tooling API to execute anonymous Apex Code, by passing apex code string text to <code>Tooling#executeAnonymous</code>.</p>
 <pre><code class="lang-javascript">/* @interactive */
@@ -1222,16 +1396,21 @@ conn.tooling.executeAnonymous(apexBody, function(err, res) {
   // ...
 });
 </code></pre>
+
+
 <h2 id="advanced-topics">Advanced Topics</h2>
 <h3 id="record-stream-pipeline">Record Stream Pipeline</h3>
 <p>Record stream is a stream system which regards records in its stream, similar to Node.js&#39;s standard readable/writable streams.</p>
-<p>Query object - usually returned by <code>Connection#query(soql)</code> / <code>SObject#find(conditions, fields)</code> methods - is considered as <code>InputRecordStream</code> which emits event <code>record</code> when received record from server.</p>
-<p>Batch object - usually returned by <code>Bulk-Job#createBatch()</code> / <code>Bulk#load(sobjectType, operation, input)</code> / <code>SObject#bulkload(operation, input)</code> methods - is considered as <code>OutputRecordStream</code> and have <code>send()</code> and <code>end()</code> method to accept incoming record.</p>
+<p>Query object - usually returned by <code>Connection#query(soql)</code> / <code>SObject#find(conditions, fields)</code> methods -
+is considered as <code>InputRecordStream</code> which emits event <code>record</code> when received record from server.</p>
+<p>Batch object - usually returned by <code>Bulk-Job#createBatch()</code> / <code>Bulk#load(sobjectType, operation, input)</code> / <code>SObject#bulkload(operation, input)</code> methods -
+is considered as <code>OutputRecordStream</code> and have <code>send()</code> and <code>end()</code> method to accept incoming record.</p>
 <p>You can use <code>InputRecordStream#pipe(outputRecordStream)</code> to pipe record stream.</p>
 <p>RecordStream can be converted to usual Node.js&#39;s stream object by calling <code>RecordStream#stream()</code> method.</p>
 <p>By default (and only currently) records are serialized to CSV string.</p>
 <h4 id="piping-query-record-stream-to-batch-record-stream">Piping Query Record Stream to Batch Record Stream</h4>
-<p>The idea of record stream pipeline is the base of bulk operation for queried record. For example, the same process of <code>Query#destroy()</code> can be expressed as following:</p>
+<p>The idea of record stream pipeline is the base of bulk operation for queried record.
+For example, the same process of <code>Query#destroy()</code> can be expressed as following:</p>
 <pre><code class="lang-javascript">//
 // This is much more complex version of Query#destroy().
 //
@@ -1264,7 +1443,8 @@ Opp.find({ &quot;Account.Id&quot; : accId },
      // ...
    });
 </code></pre>
-<p>Following is an example using <code>Query#stream()</code> (inherited <code>RecordStream#stream()</code>) to convert record stream to Node.js stream, in order to export all queried records to CSV file.</p>
+<p>Following is an example using <code>Query#stream()</code> (inherited <code>RecordStream#stream()</code>) to convert record stream to Node.js stream,
+in order to export all queried records to CSV file.</p>
 <pre><code class="lang-javascript">var csvFileOut = require(&#39;fs&#39;).createWriteStream(&#39;path/to/Account.csv&#39;);
 conn.query(&quot;SELECT Id, Name, Type, BillingState, BillingCity, BillingStreet FROM Account&quot;)
     .stream() // Convert to Node.js&#39;s usual readable stream.
@@ -1272,7 +1452,8 @@ conn.query(&quot;SELECT Id, Name, Type, BillingState, BillingCity, BillingStreet
 </code></pre>
 <h4 id="record-stream-filtering-mapping">Record Stream Filtering / Mapping</h4>
 <p>You can also filter / map queried records to output record stream.
-Static functions like <code>InputRecordStream#map(mappingFn)</code> and <code>InputRecordStream#filter(filterFn)</code> create a record stream which accepts records from upstream and pass to downstream, applying given filtering / mapping function.</p>
+Static functions like <code>InputRecordStream#map(mappingFn)</code> and <code>InputRecordStream#filter(filterFn)</code> create a record stream 
+which accepts records from upstream and pass to downstream, applying given filtering / mapping function.</p>
 <pre><code class="lang-javascript">//
 // Write down Contact records to CSV, with header name converted.
 //
