@@ -795,7 +795,7 @@ conn.analytics.reports(function(err, reports) {
 </code></pre>
 <h3 id="describe-report-metadata">Describe Report Metadata</h3>
 <p><code>Analytics#report(reportId)</code> gives a reference to the report object specified in <code>reportId</code>.
-By calling <code>Report#describe()</code>, you can get the report metadata defined in Salesforce without executing the report.</p>
+By calling <code>Analytics-Report#describe()</code>, you can get the report metadata defined in Salesforce without executing the report.</p>
 <p>You should check <a href="http://www.salesforce.com/us/developer/docs/api_analytics/index.htm">Analytics REST API Guide</a> to understand the structure of returned report metadata.</p>
 <pre><code class="lang-javascript">/* @interactive */
 var reportId = &#39;00O10000000pUw2EAE&#39;;
@@ -807,7 +807,7 @@ conn.analytics.report(reportId).describe(function(err, meta) {
 });
 </code></pre>
 <h3 id="execute-report-sync-">Execute Report (Sync)</h3>
-<p>By calling <code>Report#execute(options)</code>, the report is exected in Salesforce, and returns executed result synchronously.
+<p>By calling <code>Analytics-Report#execute(options)</code>, the report is exected in Salesforce, and returns executed result synchronously.
 Please refer to Analytics API document about the format of retruning result.</p>
 <pre><code class="lang-javascript">/* @interactive */
 // get report reference
@@ -869,7 +869,7 @@ report.execute({ metadata : metadata }, function(err, result) {
 });
 </code></pre>
 <h3 id="execute-report-async-">Execute Report (Async)</h3>
-<p><code>Report#executeAsync(options)</code> executes the report asynchronously in Salesforce,
+<p><code>Analytics-Report#executeAsync(options)</code> executes the report asynchronously in Salesforce,
 registering an instance to the report to lookup the executed result in future.</p>
 <pre><code class="lang-javascript">/* @interactive */
 var instanceId;
@@ -923,11 +923,11 @@ var accounts = [
 </code></pre>
 <p>You can use <code>SObject#create(record)</code>, but it consumes API quota per record, so not practical for large set of records. We can use bulk API interface to load them.</p>
 <p>Similar to Salesforce Bulk API, first create bulk job by <code>Bulk#createJob(sobjectType, operation)</code> through <code>bulk</code> API object in connection object.</p>
-<p>Next, create a new batch in the job, by calling <code>Job#createBatch()</code> through the job object created previously.</p>
+<p>Next, create a new batch in the job, by calling <code>Bulk-Job#createBatch()</code> through the job object created previously.</p>
 <pre><code class="lang-javascript">var job = conn.bulk.createJob(&quot;Account&quot;, &quot;insert&quot;);
 var batch = job.createBatch();
 </code></pre>
-<p>Then bulk load the records by calling <code>Batch#execute(input)</code> of created batch object, passing the records in <code>input</code> argument.</p>
+<p>Then bulk load the records by calling <code>Bulk-Batch#execute(input)</code> of created batch object, passing the records in <code>input</code> argument.</p>
 <p>When the batch is queued in Salesforce, it is notified by <code>queue</code> event, and you can get job ID and batch ID.</p>
 <pre><code class="lang-javascript">batch.execute(accounts);
 batch.on(&quot;queue&quot;, function(batchInfo) { // fired when batch request is queued in server.
@@ -996,7 +996,7 @@ conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;, csvFileIn, function(err,
   // ...
 });
 </code></pre>
-<p><code>Batch#stream()</code> returns a Node.js standard writable stream which accepts batch input. You can pipe input stream to it afterward.</p>
+<p><code>Bulk-Batch#stream()</code> returns a Node.js standard writable stream which accepts batch input. You can pipe input stream to it afterward.</p>
 <pre><code class="lang-javascript">var batch = conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;);
 batch.on(&quot;response&quot;, function(rets) { // fired when batch finished and result retrieved
   if (err) { return console.error(err); }
@@ -1093,7 +1093,7 @@ The path for the resource can be a relative path from <code>/services/data/vX.X/
 otherwise absolute URI.</p>
 <p>Please check official <a href="http://www.salesforce.com/us/developer/docs/chatterapi/">Chatter REST API Guide</a> to understand resource paths for chatter objects.</p>
 <h3 id="get-resource-information">Get Resource Information</h3>
-<p>If you want to retrieve the information for specified resource, <code>Resource#retrieve()</code> will get information of the resource.</p>
+<p>If you want to retrieve the information for specified resource, <code>Chatter-Resource#retrieve()</code> will get information of the resource.</p>
 <pre><code class="lang-javascript">/* @interactive */
 conn.chatter.resource(&quot;/users/me&quot;).retrieve(function(err, res) {
   if (err) { return console.error(err); }
@@ -1120,7 +1120,7 @@ conn.chatter.resource(&quot;/users&quot;, { q: &quot;Suzuki&quot; }).retrieve(fu
 });
 </code></pre>
 <h3 id="post-a-feed-item">Post a Feed Item</h3>
-<p>To post a feed item or a comment, use <code>Resource#create(data)</code> for collection resource.</p>
+<p>To post a feed item or a comment, use <code>Chatter-Resource#create(data)</code> for collection resource.</p>
 <pre><code class="lang-javascript">/* @interactive */
 conn.chatter.resource(&quot;/feeds/news/me/feed-items&quot;).create({
   body: {
@@ -1201,7 +1201,7 @@ conn.chatter.batch([
 });
 </code></pre>
 <h2 id="streaming-api">Streaming API</h2>
-<p>You can subscribe topic and receive message from Salesforce Streaming API, by using <code>Topic#subscribe(listener)</code>.</p>
+<p>You can subscribe topic and receive message from Salesforce Streaming API, by using <code>Streaming-Topic#subscribe(listener)</code>.</p>
 <p>Before the subscription, you should insert appropriate PushTopic record (in this example, &quot;InvoiceStatementUpdates&quot;) as written in Streaming API guide.</p>
 <pre><code class="lang-javascript">conn.streaming.topic(&quot;InvoiceStatementUpdates&quot;).subscribe(function(message) {
   console.log(&#39;Event Type : &#39; + message.event.type);
@@ -1226,7 +1226,7 @@ conn.tooling.executeAnonymous(apexBody, function(err, res) {
 <h3 id="record-stream-pipeline">Record Stream Pipeline</h3>
 <p>Record stream is a stream system which regards records in its stream, similar to Node.js&#39;s standard readable/writable streams.</p>
 <p>Query object - usually returned by <code>Connection#query(soql)</code> / <code>SObject#find(conditions, fields)</code> methods - is considered as <code>InputRecordStream</code> which emits event <code>record</code> when received record from server.</p>
-<p>Batch object - usually returned by <code>Job#createBatch()</code> / <code>Bulk#load(sobjectType, operation, input)</code> / <code>SObject#bulkload(operation, input)</code> methods - is considered as <code>OutputRecordStream</code> and have <code>send()</code> and <code>end()</code> method to accept incoming record.</p>
+<p>Batch object - usually returned by <code>Bulk-Job#createBatch()</code> / <code>Bulk#load(sobjectType, operation, input)</code> / <code>SObject#bulkload(operation, input)</code> methods - is considered as <code>OutputRecordStream</code> and have <code>send()</code> and <code>end()</code> method to accept incoming record.</p>
 <p>You can use <code>InputRecordStream#pipe(outputRecordStream)</code> to pipe record stream.</p>
 <p>RecordStream can be converted to usual Node.js&#39;s stream object by calling <code>RecordStream#stream()</code> method.</p>
 <p>By default (and only currently) records are serialized to CSV string.</p>
