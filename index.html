@@ -29,8 +29,8 @@
 <script src="/asset/jsforce/jsforce.min.js"></script>
 <script>
 jsforce.browser.init({
-  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRR0vtFfsvtVhkKTHPSz5gt5t6rMBSfyic.6YCd2J9YQEJ17kRk2cNEEKYLyD',
-  redirectUri: 'http://localhost:9778/callback.html',
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
   proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
 });
 </script>
@@ -369,52 +369,7 @@ $ jsforce -c username@salesforce.example.org -e &quot;query(&#39;SELECT Id, Name
 </script>
 
 
-<script >(function(){
-	/* Did we just livereload? */
-var log = !!(localStorage && console && console.log && true);
-if ( log && localStorage.getItem('/docpad-livereload/reloaded') === 'yes' ) {
-	localStorage.removeItem('/docpad-livereload/reloaded');
-	console.log('LiveReload completed at', new Date())
-}
 
-/* Listen for the regenerated event and perform a reload of the page when the event occurs */
-var listen = function(){
-	var primus = new Primus('/docpad-livereload');
-	primus.on('data', function(data){
-		if ( data && data.message ) {
-			if ( data.message === 'generateBefore' ) {
-				if ( log ) {
-					console.log('LiveReload started at', new Date());
-				}
-				if ( typeof document.getElementsByTagName !== 'undefined' ) {
-	document.getElementsByTagName('html')[0].className += ' wait';
-}
-			}
-			else if ( data.message === 'generateAfter' ) {
-				if ( log ) {
-					localStorage.setItem('/docpad-livereload/reloaded', 'yes');
-				}
-				document.location.reload();
-			}
-		}
-	});
-};
-	/* Inject socket into our page */
-var inject = function(){
-	var t = document.createElement('script');
-	t.type = 'text/javascript';
-	t.async = 'async';
-	t.src = '/primus/primus.js';
-	t.onload = listen;
-	var s = document.getElementsByTagName('script')[0];
-	s.parentNode.insertBefore(t, s);
-};
-	if ( typeof Primus !== 'undefined' ) {
-		listen();
-	} else {
-		inject();
-	}
-})();</script>
 
 </body>
 </html>
