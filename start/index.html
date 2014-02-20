@@ -243,11 +243,11 @@ var conn = jsforce.Connection();
 <p>When the script is loaded, <code>jsforce</code> object will be defined in global root.</p>
 <p>If your app is located outside of Salesforce domain (that is, non-Visualforce app), 
 you need to register your app as &quot;Connected App&quot; in Salesforce.</p>
-<p>So first you have to register your app as an OAuth2 client to get client ID.
-You must input callback URL (used as OAuth2 redirect URI) to get registered,
-and it must be in the same origin of your web app.</p>
 <p>Web app pages which use JSforce should be initialized with the application information.
-Following is an example HTML of JSforce initizalization.</p>
+In following initizalization code, you can see it is passing OAuth2 client ID information,
+so first you have to register your app as an OAuth2 client to get client ID.
+You must provide callback URL information (used as OAuth2 redirect URI) in registration,
+which must be in the same origin of your web app.</p>
 <pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 jsforce.browser.init({
@@ -259,7 +259,9 @@ jsforce.browser.init({
 
 &lt;/script&gt;
 </code></pre>
-<p>NOTE: You may need <a href="https://github.com/jsforce/jsforce-ajax-proxy">jsforce-ajax-proxy</a> 
+<p>Note that the page in callback URL also have to include JSforce initialization code.
+The content of callback page can be empty, because it will not be used except for API authorization.</p>
+<p>Additionally, you may need <a href="https://github.com/jsforce/jsforce-ajax-proxy">jsforce-ajax-proxy</a> 
 if the app resides outside of Salesforce (that is, non-Visualforce environment).</p>
 <pre><code class="lang-javascript">jsforce.browser.init({
   clientId: &#39;&lt;your OAuth2 client ID&gt;&#39;,
@@ -267,7 +269,6 @@ if the app resides outside of Salesforce (that is, non-Visualforce environment).
   proxyUrl: &#39;https://your-jsforce-proxy-server.herokuapp.com/proxy/&#39;
 });
 </code></pre>
-<p>Note that the page in callback URL also have to include JSforce initialization code.</p>
 <p>To enforce users to login, you can call <code>jsforce.browser.login()</code> to start OAuth2 authorization flow by popping up window.
 Afterward you can get authorized API connection by listening <code>connect</code> event on <code>jsforce.browser</code> object.</p>
 <pre><code class="lang-javascript">jsforce.browser.on(&#39;connect&#39;, function(conn) {
