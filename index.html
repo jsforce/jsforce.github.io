@@ -272,7 +272,7 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 <div class="tab-pane" id="web-browser-vf">
 <h3 id="example">Example</h3>
 <pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
-  &lt;apex:includeScript value=&quot;{!URLFOR($Resources.JSforce)}&quot; /&gt;
+  &lt;apex:includeScript value=&quot;{!URLFOR($Resource.JSforce)}&quot; /&gt;
   &lt;script&gt;
 var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
 conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
