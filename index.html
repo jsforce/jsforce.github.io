@@ -246,7 +246,7 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-  &lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jsforce/1.1.2/jsforce.min.js&quot;&gt;&lt;/script&gt;
   &lt;script&gt;
 jsforce.browser.init({
   clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39;,
@@ -293,7 +293,7 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 &lt;head&gt;
   &lt;meta id=&quot;sf-canvas-signed-request&quot; content=&quot;&lt;%= verifiedSignedRequestJSON %&gt;&quot; /&gt;
   &lt;script src=&quot;https://login.salesforce.com/canvas/sdk/js/29.0/canvas-all.js&quot;&gt;&lt;/script&gt;
-  &lt;script src=&quot;/js/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jsforce/1.1.2/jsforce.min.js&quot;&gt;&lt;/script&gt;
   &lt;script&gt;
 var sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
 var conn = new jsforce.Connection({ signedRequest: sr });

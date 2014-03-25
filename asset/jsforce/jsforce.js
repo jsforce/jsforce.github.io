@@ -574,9 +574,16 @@ Client.prototype._getTokens = function() {
   if (document.cookie.match(regexp)) {
     var issuedAt = Number(localStorage.getItem(this._prefix+'_issued_at'));
     if (Date.now() < issuedAt + 2 * 60 * 60 * 1000) { // 2 hours
+      var userInfo;
+      var idUrl = localStorage.getItem(this._prefix + '_id');
+      if (idUrl) {
+        var ids = idUrl.split('/');
+        userInfo = { id: ids.pop(), organizationId: ids.pop(), url: idUrl };
+      }
       return {
         accessToken: localStorage.getItem(this._prefix + '_access_token'),
         instanceUrl: localStorage.getItem(this._prefix + '_instance_url'),
+        userInfo: userInfo
       };
     }
   }
@@ -590,6 +597,7 @@ Client.prototype._storeTokens = function(params) {
   localStorage.setItem(this._prefix + '_access_token', params.access_token);
   localStorage.setItem(this._prefix + '_instance_url', params.instance_url);
   localStorage.setItem(this._prefix + '_issued_at', params.issued_at);
+  localStorage.setItem(this._prefix + '_id', params.id);
   document.cookie = this._prefix + '_loggedin=true;';
 };
 
@@ -600,6 +608,7 @@ Client.prototype._removeTokens = function() {
   localStorage.removeItem(this._prefix + '_access_token');
   localStorage.removeItem(this._prefix + '_instance_url');
   localStorage.removeItem(this._prefix + '_issued_at');
+  localStorage.removeItem(this._prefix + '_id');
   document.cookie = this._prefix + '_loggedin=';
 };
 
@@ -738,6 +747,7 @@ module.exports = function(params, callback) {
 
 
 },{"stream":42}],7:[function(_dereq_,module,exports){
+var process=_dereq_("__browserify_process");/*global process*/
 /**
  * @file Manages Salesforce Bulk API related operations
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
@@ -1035,7 +1045,7 @@ Batch.prototype.execute = function(input, callback) {
 
   var rdeferred = Promise.defer();
   this._result = rdeferred.promise;
-  this._result.thenCall(callback).then(function(res) {
+  this._result.then(function(res) {
     self._deferred.resolve(res);
   }, function(err) {
     self._deferred.reject(err);
@@ -1063,7 +1073,7 @@ Batch.prototype.execute = function(input, callback) {
   }
 
   // return Batch instance for chaining
-  return this;
+  return this.thenCall(callback);
 };
 
 /**
@@ -1086,9 +1096,13 @@ Batch.prototype.then = function(onResolved, onReject, onProgress) {
  */
 Batch.prototype.thenCall = function(callback) {
   return _.isFunction(callback) ? this.then(function(res) {
-    return callback(null, res);
+    process.nextTick(function() {
+      callback(null, res);
+    });
   }, function(err) {
-    return callback(err);
+    process.nextTick(function() {
+      callback(err);
+    });
   }) : this;
 };
 
@@ -1443,7 +1457,7 @@ Bulk.prototype.job = function(jobId) {
 /*--------------------------------------------*/
 
 module.exports = Bulk;
-},{"./connection":10,"./csv":11,"./promise":17,"./record-stream":19,"events":31,"stream":42,"underscore":52,"util":50}],8:[function(_dereq_,module,exports){
+},{"./connection":10,"./csv":11,"./promise":17,"./record-stream":19,"__browserify_process":34,"events":31,"stream":42,"underscore":52,"util":50}],8:[function(_dereq_,module,exports){
 /**
  * @file Manages asynchronous method response cache
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
@@ -2137,7 +2151,7 @@ Connection.prototype.initialize = function(options) {
 
   this.accessToken = options.sessionId || options.accessToken || this.accessToken;
   this.refreshToken = options.refreshToken || this.refreshToken;
-  if (this.refreshToken && !this.oauth2) {
+  if (this.refreshToken && !this.oauth2 && !this._refreshDelegate) {
     throw new Error("Refersh token is specified without oauth2 client information");
   }
   
@@ -2146,7 +2160,9 @@ Connection.prototype.initialize = function(options) {
     this.accessToken = this.signedRequest.client.oauthToken;
   }
 
-  this.userInfo = options.userInfo;
+  if (options.userInfo) {
+    this.userInfo = options.userInfo;
+  }
 
   this.sobjects = {};
   this.cache.clear();
@@ -2211,7 +2227,7 @@ Connection.prototype._request = function(params, callback, options) {
       deferred.reject(err);
       return;
     }
-    self._request(params, callback, options).then(function(response) {
+    self._request(params, null, options).then(function(response) {
       deferred.resolve(response);
     }, function(err) {
       deferred.reject(err);
@@ -2220,7 +2236,7 @@ Connection.prototype._request = function(params, callback, options) {
 
   if (self._suspended) {
     self.once('resume', onResume);
-    return deferred.promise;
+    return deferred.promise.thenCall(callback);
   }
 
   params.headers = params.headers || {};
@@ -2239,15 +2255,17 @@ Connection.prototype._request = function(params, callback, options) {
   logger.debug("<request> method=" + params.method + ", url=" + params.url);
   var requestTime = Date.now();
 
-  var onResponse = function(err, response) {
-
+  var onFailure = function(err) {
     var responseTime = Date.now();
     logger.debug("elappsed time : " + (responseTime - requestTime) + "msec");
 
-    if (err) {
-      logger.error(err);
-      throw err;
-    }
+    logger.error(err);
+    throw err;
+  };
+
+  var onResponse = function(response) {
+    var responseTime = Date.now();
+    logger.debug("elappsed time : " + (responseTime - requestTime) + "msec");
 
     logger.debug("<response> status=" + response.statusCode + ", url=" + params.url);
 
@@ -2277,6 +2295,7 @@ Connection.prototype._request = function(params, callback, options) {
                     /^text\/csv(;|$)/.test(contentType) ? parseCSV :
                     parseText;
 
+    var err;
     if (response.statusCode >= 400) {
       var error;
       try {
@@ -2303,7 +2322,7 @@ Connection.prototype._request = function(params, callback, options) {
     }
   };
 
-  return this._transport.httpRequest(params, onResponse, options).thenCall(callback);
+  return this._transport.httpRequest(params, null, options).then(onResponse, onFailure).thenCall(callback);
 
 };
 
@@ -2359,9 +2378,11 @@ Connection.prototype._refresh = function() {
   var delegate = this._refreshDelegate || this.oauth2;
   return delegate.refreshToken(this.refreshToken, function(err, res) {
     if (!err) {
+      var userInfo = parseIdUrl(res.id);
       self.initialize({
         instanceUrl : res.instance_url,
-        accessToken : res.access_token
+        accessToken : res.access_token,
+        userInfo : userInfo
       });
       logger.debug("token refresh completed. result = " + JSON.stringify(res));
       self.emit("refresh", res.access_token, res);
@@ -2370,6 +2391,17 @@ Connection.prototype._refresh = function() {
     self.emit('resume', err);
   });
 };
+
+/** @private **/
+function parseIdUrl(idUrl) {
+  var idUrls = idUrl.split("/");
+  var userId = idUrls.pop(), orgId = idUrls.pop();
+  return {
+    id: userId,
+    organizationId: orgId,
+    url: idUrl
+  };
+}
 
 
 /**
@@ -2796,20 +2828,14 @@ Connection.prototype.authorize = function(code, callback) {
 
   return this.oauth2.requestToken(code).then(function(res) {
     logger.debug("OAuth2 token response = " + JSON.stringify(res));
-    var idUrls = res.id.split("/");
-    var userId = idUrls.pop(), orgId = idUrls.pop();
-    var userInfo = {
-      id: userId,
-      organizationId: orgId,
-      url: res.id
-    };
+    var userInfo = parseIdUrl(res.id);
     self.initialize({
       instanceUrl : res.instance_url,
       accessToken : res.access_token,
       refreshToken : res.refresh_token,
-      userInfo : userInfo
+      userInfo: userInfo
     });
-    logger.debug("<login> completed. user id = " + userId + ", org id = " + orgId);
+    logger.debug("<login> completed. user id = " + userInfo.id + ", org id = " + userInfo.organizationId);
     return userInfo;
 
   }).thenCall(callback);
@@ -2848,20 +2874,13 @@ Connection.prototype.loginByOAuth2 = function(username, password, callback) {
 
   return this.oauth2.authenticate(username, password).then(function(res) {
     logger.debug("OAuth2 token response = " + JSON.stringify(res));
-
-    var idUrls = res.id.split("/");
-    var userId = idUrls.pop(), orgId = idUrls.pop();
-    var userInfo = {
-      id: userId,
-      organizationId: orgId,
-      url: res.id
-    };
+    var userInfo = parseIdUrl(res.id);
     self.initialize({
       instanceUrl : res.instance_url,
       accessToken : res.access_token,
-      userInfo : userInfo
+      userInfo: userInfo
     });
-    logger.debug("<login> completed. user id = " + userId + ", org id = " + orgId);
+    logger.debug("<login> completed. user id = " + userInfo.id + ", org id = " + userInfo.organizationId);
     return userInfo;
 
   }).thenCall(callback);
@@ -3526,7 +3545,7 @@ function createLoggerFunction(level) {
 }
 
 },{}],15:[function(_dereq_,module,exports){
-var Buffer=_dereq_("__browserify_Buffer");/*global Buffer */
+var process=_dereq_("__browserify_process"),Buffer=_dereq_("__browserify_Buffer");/*global process, Buffer */
 /**
  * @file Manages Salesforce Metadata API
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
@@ -3939,9 +3958,13 @@ AsyncResultLocator.prototype.then = function(onResolve, onReject) {
  */
 AsyncResultLocator.prototype.thenCall = function(callback) {
   return _.isFunction(callback) ? this.then(function(res) {
-    return callback(null, res);
+    process.nextTick(function() {
+      callback(null, res);
+    });
   }, function(err) {
-    return callback(err);
+    process.nextTick(function() {
+      callback(err);
+    });
   }) : this;
 };
 
@@ -4136,7 +4159,7 @@ DeployResultLocator.prototype.complete = function(includeDetails, callback) {
   }).thenCall(callback);
 };
 
-},{"./promise":17,"./soap":21,"__browserify_Buffer":33,"events":31,"stream":42,"underscore":52,"util":50}],16:[function(_dereq_,module,exports){
+},{"./promise":17,"./soap":21,"__browserify_Buffer":33,"__browserify_process":34,"events":31,"stream":42,"underscore":52,"util":50}],16:[function(_dereq_,module,exports){
 /**
  * @file Manages Salesforce OAuth2 operations
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
@@ -4290,6 +4313,7 @@ _.extend(OAuth2.prototype, /** @lends OAuth2.prototype **/ {
 });
 
 },{"./transport":26,"querystring":40,"underscore":52}],17:[function(_dereq_,module,exports){
+var process=_dereq_("__browserify_process");/*global process*/
 var Q = _dereq_('q'),
     _ = _dereq_('underscore')._;
 
@@ -4340,9 +4364,13 @@ Promise.prototype.then = function() {
  */
 Promise.prototype.thenCall = function(callback) {
   return _.isFunction(callback) ? this.then(function(res) {
-    return callback(null, res);
+    process.nextTick(function() {
+      callback(null, res);
+    });
   }, function(err) {
-    return callback(err);
+    process.nextTick(function() {
+      callback(err);
+    });
   }) : this;
 };
 
@@ -4435,7 +4463,8 @@ Deferred.prototype.reject = function() {
  */
 module.exports = Promise;
 
-},{"q":51,"underscore":52}],18:[function(_dereq_,module,exports){
+},{"__browserify_process":34,"q":51,"underscore":52}],18:[function(_dereq_,module,exports){
+var process=_dereq_("__browserify_process");/*global process*/
 /**
  * @file Manages query for records in Salesforce 
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
@@ -5085,9 +5114,13 @@ Query.prototype.then = function(onResolved, onReject) {
  */
 Query.prototype.thenCall = function(callback) {
   return _.isFunction(callback) ? this.then(function(res) {
-    return callback(null, res);
+    process.nextTick(function() {
+      callback(null, res);
+    });
   }, function(err) {
-    return callback(err);
+    process.nextTick(function() {
+      callback(err);
+    });
   }) : this;
 };
 
@@ -5140,7 +5173,7 @@ SubQuery.prototype.execute = function() {
   return this._parent.execute.apply(this._parent, arguments);
 };
 
-},{"./date":12,"./record-stream":19,"./soql-builder":23,"async":27,"events":31,"q":51,"underscore":52,"util":50}],19:[function(_dereq_,module,exports){
+},{"./date":12,"./record-stream":19,"./soql-builder":23,"__browserify_process":34,"async":27,"events":31,"q":51,"underscore":52,"util":50}],19:[function(_dereq_,module,exports){
 /**
  * @file Represents stream that handles Salesforce record as stream data
  * @author Shinichi Tomita <shinichi.tomita@gmail.com>
