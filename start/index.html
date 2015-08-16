@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Getting Started - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Getting Started - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/start/" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Getting Started - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.5.0/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="start">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="active">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Getting Started</h2>
+        <p>Start app development using JSforce</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-9">
+<h2 id="overview">Overview</h2>
+<p>JSforce (f.k.a. Node-Salesforce) is a isomorphic JavaScript Library utilizing Salesforce&#39;s API: It works both in browser and with Node.js.</p>
+<p>It capsulates the access to various APIs provided by Salesforce in asynchronous JavaScript function calls.</p>
+<p>Unlike other Salesforce API libraries, it is intended to give integrated interface both server-side and client-side apps, 
+so you don&#39;t have to rewrite similar logics with different libraries only for running in different environment.</p>
+<p>Additionally, it has useful command line interface (CLI) which gives interactive console (REPL), 
+so you can learn the usage without hassle.</p>
+<h3 id="supported-apis">Supported APIs</h3>
+<ul>
+<li>REST API (<a href="/document/#query">SOQL</a>, <a href="/document/#search">SOSL</a>, <a href="/document/#crud">CRUD</a>, <a href="/document/#describe">describe</a>, etc.)</li>
+<li><a href="/document/#apex-rest">Apex REST</a></li>
+<li><a href="/document/#analytics-api">Analytics API</a></li>
+<li><a href="/document/#bulk-api">Bulk API</a></li>
+<li><a href="/document/#chatter-api">Chatter API</a></li>
+<li><a href="/document/#metadata-api">Metadata API</a></li>
+<li><a href="/document/#streaming-api">Streaming API</a></li>
+<li><a href="/document/#tooling-api">Tooling API</a></li>
+</ul>
+<h2 id="setup">Setup</h2>
+<h3 id="node-js">Node.js</h3>
+<p>If you want to use JSforce as an API library in your Node.js project, install it via npm.</p>
+<pre><code class="lang-shell">$ npm install jsforce</code></pre>
+<p>When you installed JSforce, you can import using <code>require(&#39;jsforce&#39;)</code> in your Node.js application code.</p>
+<pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
+var conn = new jsforce.Connection();</code></pre>
+<p>Details for establishing API connection are written in <a href="/api/#connection">API Reference</a>.</p>
+<h3 id="web-browser">Web Browser</h3>
+<p>If you want to use JSforce in web browser JavaScript, 
+<a href="/download/">download JSforce JS library</a> and put it on any path in your website, and include in <code>&lt;script&gt;</code> tag:</p>
+<pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;</code></pre>
+<p>Or you can use public CDN to include script directly to your web site.</p>
+<pre><code class="lang-html">&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jsforce/1.5.0/jsforce.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+<p>When the script is loaded, <code>jsforce</code> object will be defined in global root.</p>
+<p>As the <code>jsforce.js</code> file is all-in-one library, it includes all objects for each Salesforce APIs.
+You might prefer to use only core module and some specific API module to reduce total footprint size to load.
+You can use <code>jsforce-core.js</code> file which includes core function only, and include each API scripts to use in your app.</p>
+<pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce-core.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;/path/to/jsforce-api-bulk.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;/path/to/jsforce-api-chatter.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+<p>If your app is located outside of Salesforce domain (that is, non-Visualforce app), 
+you need to register your app as &quot;Connected App&quot; in Salesforce.</p>
+<p>Web app pages which use JSforce should be initialized with the application information.
+In following initizalization code, you can see it is passing OAuth2 client ID information,
+so first you have to register your app as an OAuth2 client to get client ID.
+You must provide callback URL information (used as OAuth2 redirect URI) in registration,
+which must be in the same origin of your web app.</p>
+<pre><code class="lang-html">&lt;script src=&quot;/path/to/jsforce.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+jsforce.browser.init({
+  clientId: &#39;[your OAuth2 client ID]&#39;,
+  redirectUri: &#39;[your OAuth2 redirect URI]&#39; 
+});
+
+// ...
+
+&lt;/script&gt;</code></pre>
+<p>Note that the page in callback URL also have to include JSforce initialization code.
+The content of callback page can be empty, because it will not be used except for API authorization.</p>
+<p>Additionally, you may need <a href="https://github.com/jsforce/jsforce-ajax-proxy">jsforce-ajax-proxy</a> 
+if the app resides outside of Salesforce (that is, non-Visualforce environment).</p>
+<pre><code class="lang-javascript">jsforce.browser.init({
+  clientId: &#39;&lt;your OAuth2 client ID&gt;&#39;,
+  redirectUri: &#39;&lt;your OAuth2 redirect URI&gt;&#39;,
+  proxyUrl: &#39;https://your-jsforce-proxy-server.herokuapp.com/proxy/&#39;
+});</code></pre>
+<p>To enforce users to login, you can call <code>jsforce.browser.login()</code> to start OAuth2 authorization flow by popping up window.
+Afterward you can get authorized API connection by listening <code>connect</code> event on <code>jsforce.browser</code> object.</p>
+<pre><code class="lang-javascript">jsforce.browser.on(&#39;connect&#39;, function(conn) {
+  conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+    if (err) { return handleError(err); }
+    handleResult(res);
+  });
+});</code></pre>
+<h3 id="visualforce">Visualforce</h3>
+<p>If you are writing HTML5 apps on Visualforce, API access token is automatically obtained as session ID.
+You can just pass it to Connection constructor to initialize.
+Also you can use static resources to upload JSforce JavaScript file to include.</p>
+<pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
+  &lt;apex:includeScript value=&quot;{!URLFOR($Resource.JSforce)}&quot; /&gt;
+  &lt;script&gt;
+var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});
+
+// ...
+
+  &lt;/script&gt;
+
+&lt;/apex:page&gt;</code></pre>
+<h3 id="salesforce-canvas">Salesforce Canvas</h3>
+<p>You can also use JSforce in Salesforce Canvas app.
+In order to create authorized API connection, pass signed request JSON value to Connection constructor</p>
+<p>Note that the signed request value must be validated in server-side before passing to JSforce.
+Also you have to load canvas JS SDK officially provided from Salesforce.</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta id=&quot;sf-canvas-signed-request&quot; content=&quot;&lt;%= verifiedSignedRequestJSON %&gt;&quot; /&gt;
+  &lt;script src=&quot;https://login.salesforce.com/canvas/sdk/js/34.0/canvas-all.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/jsforce.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+var sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
+var conn = new jsforce.Connection({ signedRequest: sr });
+conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});
+
+//...
+
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h2 id="basic-usage">Basic Usage</h2>
+<p>When you established the connection, you can call APIs defined in connection object.</p>
+<p>By JavaScript&#39;s nature, all API calls are done asynchronously.</p>
+<h3 id="using-callback">Using Callback</h3>
+<p>As broadly used in other JavaScript APIs, you can pass a callback function to wait and get the async response.</p>
+<p>The callback function has the same interface as normal Node.js callback, accepting two arguments - error and successful result.</p>
+<pre><code class="lang-javascript">conn.query(&quot;SELECT Id, Name FROM Account LIMIT 10&quot;, function(err, res) {
+  if (err) { return handleError(err); }
+  handleResult(res);
+});</code></pre>
+<h3 id="using-promise">Using Promise</h3>
+<p>JSforce supports <a href="http://promises-aplus.github.io/promises-spec/">Promise/A+</a> spec,
+and almost all API calls return Promise object.
+So you can chain the promise result by <code>then()</code> to handle the async response.</p>
+<pre><code class="lang-javascript">conn.query(&quot;SELECT Id, Name FROM Account LIMIT 1&quot;)
+  .then(function(res) {
+    // receive resolved result from the promise, 
+    // then return another promise for continuing API execution.
+    return conn.sobject(&#39;Account&#39;).create({ Name: &#39;Another Account&#39; });
+  })
+  .then(function(ret) { 
+    // handle final result of API execution
+    // ...
+  }, function(err) {
+    // catch any errors in execution
+    // ...
+  });</code></pre>
+<h2 id="command-line-interface">Command Line Interface</h2>
+<p>There is a Command Line Interface (CLI) which works on tty.
+To use JSforce CLI, install npm package globally.</p>
+<pre><code>$ npm install jsforce -g</code></pre>
+<p>After the install, <code>jsforce</code> command will be available in your path.</p>
+<pre><code>$ jsforce --help
+
+  Usage: jsforce [options]
+
+  Options:
+
+    -h, --help                     output usage information
+    -u, --username [username]      Salesforce username
+    -p, --password [password]      Salesforce password (and security token, if available)
+    -c, --connection [connection]  Connection name stored in connection registry
+    -e, --evalScript [evalScript]  Script to evaluate
+    --coffee                       Using CoffeeScript</code></pre>
+<p>When you just type <code>jsforce</code>, it enters into REPL mode.
+In the REPL environment, default connection object in the context is exposed,
+so you don&#39;t need to instantiate connection object.</p>
+<pre><code>$ jsforce
+&gt; login(&#39;user@example.org&#39;, &#39;password123&#39;);
+{ id: &#39;00550000000vwsFAAQ&#39;,
+  organizationId: &#39;00D500000006xKGEAY&#39;,
+  url: &#39;https://login.salesforce.com/id/00D500000006xKGEAY/00550000000vwsFAAQ&#39; }
+&gt;</code></pre>
+<p>To login to Salesforce, type <code>.connect</code> with username.</p>
+<pre><code>&gt; .connect user@example.org
+Password: ********
+Logged in as : username@example.org
+&gt;</code></pre>
+<p>The established session information is stored in <code>~/.jsforce/config.json</code> file, 
+so you can connect without password while the session is valid.</p>
+<pre><code>$ jsforce -c user@example.org
+Logged in as : user@example.org
+&gt;</code></pre>
+<p>By passing a script in <code>-e</code> option, it automatically evaluate the script and returns result in JSON.</p>
+<pre><code>$ jsforce -c user@example.org -e &quot;query(&#39;SELECT Id, Name FROM Account LIMIT 1&#39;)&quot;
+{&quot;totalSize&quot;:1,&quot;done&quot;:true,&quot;records&quot;:[{&quot;attributes&quot;:{&quot;type&quot;:&quot;Account&quot;,&quot;url&quot;:&quot;/services/data/v29.0/sobjects/Account/0015000000KBQ5GAAX&quot;},&quot;Id&quot;:&quot;0015000000KBQ5GAAX&quot;,&quot;Name&quot;:&quot;United Oil&quot;}]}</code></pre>
+<p>In order to authorize the connection via OAuth2 authorization flow, type <code>.authorize</code> in REPL mode.
+It will popup browser and start flow for API access authorization.</p>
+<pre><code>&gt; .authorize</code></pre>
+<p>Note that you need to register your OAuth2 client information before start OAuth2 authorization.
+The <code>.register</code> command will navigate the registration.
+In order to accomplish authorization flow successfully, the redirect URL of registering client must be <code>http://localhost:&lt;port&gt;</code>.</p>
+<pre><code class="lang-shell">&gt; .register
+Input client ID (consumer key) : &lt;your client id&gt;
+Input client secret (consumer secret) : &lt;your client secret&gt;
+Input redirect URI : &lt;your client redirect uri&gt;
+Input login URL (default is https://login.salesforce.com) : 
+Client registered successfully.</code></pre>
+<p>If you are connecting to sandbox instance or other environment with different login servers (e.g. pre-release environment), you can specify login server by <code>-l &lt;loginServerUrl&gt;</code>.</p>
+<pre><code>$ jsforce -l https://test.salesforce.com</code></pre>
+<p>If you are connecting to sandbox, you can also use following :</p>
+<pre><code>$ jsforce -l sandbox</code></pre>
+<p>or</p>
+<pre><code>$ jsforce --sandbox</code></pre>
+
+      </div>
+      <div class="col-md-3 hidden-xs hidden-sm hidden-print">
+<div id="sidebar" data-spy="affix" data-offset-top="130" data-offset-bottom="0">
+  <script>
+$(function() {
+  var ul = $('<ul class="nav">');
+  $('#content h2').each(function() {
+    var h2 = $(this);
+    var li = $('<li>').append($('<a>').attr('href', '#'+h2.attr('id')).text(h2.text()));
+    ul.append(li);
+    var cul = $('<ul class="nav">');
+    h2.nextAll('h2, h3').each(function() {
+      var ch3 = $(this);
+      if (ch3.get(0).tagName.toLowerCase() === 'h2') {
+        return false;
+      }
+      var cli = $('<li>').append($('<a>').attr('href', '#'+ch3.attr('id')).text(ch3.text()));
+      cul.append(cli);
+    });
+    if (cul.children().size()>0) {
+      li.append(cul);
+    }
+  });
+  ul.appendTo('#sidebar');
+
+  var scrolling = false;
+
+  $('#sidebar').on('click', 'li a', function(e) {
+    e.preventDefault();
+    var id = $(this).attr('href').substring(1);
+    adjustScroll(id);
+  });
+
+  $('body').scrollspy({ target: '#sidebar', offset: 90 })
+
+  $(window).on('hashchange', function(e) {
+    if (!scrolling) { adjustScroll(null, 1); }
+  });
+
+  adjustScroll();
+
+  function adjustScroll(id, speed) {
+    id = id || (location.hash && location.hash.substring(1));
+    if (!id) { return; }
+    var el = $(document).find('#'+id);
+    if (el.size() === 0) { return; }
+    var y = el.offset().top - 70;
+    scrolling = true;
+    $('body').animate({ scrollTop: y }, speed || 500, function() {
+      // var y = window.scrollY;
+      location.hash = '#' + id;
+      window.scrollTo(0, y);
+      scrolling = false;
+    });
+  }
+
+});
+  </script>
+</div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
