@@ -25,7 +25,7 @@
 
 <script>
 if (location.protocol === "http:" && location.hostname !== "localhost") {
-	location.href = location.href.replace(/^http:/, 'https:');
+  location.href = location.href.replace(/^http:/, 'https:');
 }
 </script>
 <script src="/asset/jquery/jquery.min.js"></script>
@@ -333,7 +333,7 @@ conn.logout(function(err) {
 //
 // OAuth2 client information can be shared with multiple connections.
 //
-var oauth2 = new sf.OAuth2({
+var oauth2 = new jsforce.OAuth2({
   // you can change loginUrl to connect to sandbox or prerelease env.
   // loginUrl : &#39;https://test.salesforce.com&#39;,
   clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
@@ -352,7 +352,7 @@ app.get(&#39;/oauth2/auth&#39;, function(req, res) {
 // Pass received authz code and get access token
 //
 app.get(&#39;/oauth2/callback&#39;, function(req, res) {
-  var conn = new sf.Connection({ oauth2 : oauth2 });
+  var conn = new jsforce.Connection({ oauth2 : oauth2 });
   var code = req.param(&#39;code&#39;);
   conn.authorize(code, function(err, userInfo) {
     if (err) { return console.error(err); }
@@ -1527,7 +1527,7 @@ Account.find({ CreatedDate: { $lt: jsforce.Date.LAST_YEAR }})
 var Opp = conn.sobject(&#39;Opportunity&#39;);
 Opp.find({ &quot;Account.Id&quot; : accId },
          { Id: 1, Name: 1, &quot;Account.Name&quot;: 1 })
-   .pipe(sf.RecordStream.map(function(r) {
+   .pipe(jsforce.RecordStream.map(function(r) {
      return { Id: r.Id,
               Name: r.Account.Name + &#39; - &#39; + r.Name };
    }))
@@ -1576,7 +1576,7 @@ conn.sobject(&#39;Lead&#39;)
 //
 conn.sobject(&#39;Contact&#39;)
     .find({}, { Id: 1, Name: 1 })
-    .pipe(sf.RecordStream.map(function(r) {
+    .pipe(jsforce.RecordStream.map(function(r) {
       return { ID: r.Id, FULL_NAME: r.Name };
     }))
     .stream().pipe(fs.createWriteStream(&quot;Contact.csv&quot;));
@@ -1587,7 +1587,7 @@ conn.sobject(&#39;Contact&#39;)
 var emails = {};
 conn.sobject(&#39;Lead&#39;)
     .find({}, { Id: 1, Name: 1, Company: 1, Email: 1 })
-    .pipe(sf.RecordStream.filter(function(r) {
+    .pipe(jsforce.RecordStream.filter(function(r) {
       var dup = emails[r.Email];
       if (!dup) { emails[r.Email] = true; }
       return !dup;
@@ -1598,13 +1598,13 @@ conn.sobject(&#39;Lead&#39;)
 <pre><code class="lang-javascript">//
 // Connection for org which migrating data from
 //
-var conn1 = new sf.Connection({
+var conn1 = new jsforce.Connection({
   // ...
 });
 //
 // Connection for org which migrating data to
 //
-var conn2 = new sf.Connection({
+var conn2 = new jsforce.Connection({
   // ...
 });
 //
