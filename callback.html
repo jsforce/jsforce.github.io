@@ -149,6 +149,7 @@ jsforce.browser.init({
 
 <script>
 jsforce.browser.on('connect', function(conn) {
+	alert(1);
   var userInfo;
   if (localStorage.getItem('sf_user_info')) {
     userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
