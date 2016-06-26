@@ -1005,7 +1005,7 @@ batch.on(&quot;queue&quot;, function(batchInfo) { // fired when batch request is
   // ...
 });
 </code></pre>
-<p>After the batch is queued and job / batch ID is created, wait the batch completion by polling.</p>
+<p>After the batch is queued and job / batch ID is created, wait for the batch completion by polling.</p>
 <p>When the batch process in Salesforce has been completed, it is notified by <code>response</code> event with batch result information.</p>
 <pre><code class="lang-javascript">var job = conn.bulk.job(jobId);
 var batch = job.batch(batchId);
