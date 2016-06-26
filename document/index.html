@@ -1460,7 +1460,7 @@ conn.metadata.rename(&#39;CustomObject&#39;, &#39;TestObject3__c&#39;, &#39;Upda
 });
 </code></pre>
 <h3 id="delete-metadata">Delete Metadata</h3>
-<p><code>Metadata#delete(type, metadata)</code> can be used for deleting existing metadata objects.</p>
+<p><code>Metadata#delete(type, fullNames)</code> can be used for deleting existing metadata objects.</p>
 <pre><code class="lang-javascript">/* @interactive */
 var fullNames = [&#39;TestObject1__c&#39;, &#39;TestObject2__c&#39;];
 conn.metadata.delete(&#39;CustomObject&#39;, fullNames, function(err, results) {
