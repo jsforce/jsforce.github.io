@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>5 Tips You Should Know When Using JSforce REPL - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="5 Tips You Should Know When Using JSforce REPL - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/posts/20140115-jsforce-repl-tips.html" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="5 Tips You Should Know When Using JSforce REPL - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+<article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20140115-jsforce-repl-tips.html'>5 Tips You Should Know When Using JSforce REPL</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jan 15th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>If you are already using JSforce, you may be aware of its REPL. If not, you are definitely spending time and spending in learning APIs.</p>
+<p>JSforce REPL is an extension of Node.js REPL (Read-Eval-Print Loop), which enables you to try and execute Salesforce APIs (REST, Bulk, Chatter, Metadata, and so on) in interactive manner.</p>
+<p>I recently noticed that people are not fully utilizing features in the REPL. Here I would like to pick up some tips in JSforce REPL which I really think very useful.</p>
+<h3 id="1-use-authorize-command-to-create-persisting-connection">1. Use &quot;.authorize&quot; Command to Create Persisting Connection</h3>
+<p>When you are connecting to Salesforce in JSforce, you may be using <code>.connect</code> command with username/password.</p>
+<pre><code>$ jsforce
+&gt; .connect username@example.org
+Password: *******
+Logged in as: username@example.org
+&gt;
+</code></pre><p>But inputting password to establish connection for each time is sometime considered to be a painful work.</p>
+<p>JSforce supports OAuth2 authorization to establish connection. OAuth2 has a mechanism to refresh access token after the session expiration, which is called refresh token flow. JSforce REPL has built-in ability to initiate OAuth flow, obtain refresh token, and keep it securely in OS file system. So you don&#39;t have to worry about handling it.</p>
+<p>To be authorized in JSforce via OAuth2, use <code>.authorize</code> command instead of <code>.connect</code>.</p>
+<pre><code>&gt; .authorize
+</code></pre><p>The command will pop up a browser window to prompt OAuth authorization.</p>
+<p>Before using <code>.authorize</code> command, you should first register an OAuth client for JSforce REPL in Connected Apps on your developer organization, which does not have to be the organization you’re going to connect. When registering a Connected App for JSforce, the callback URL should be starting with <code>http://localhost:&lt;any_available_port_number&gt;/</code>.</p>
+<p>Then use <code>.register</code> command in JSforce to start interactive wizard to register client information in configuration.</p>
+<pre><code>&gt; .register
+Input client ID (consumer key) : 3MVG9A2kN3....bhT
+Input client secret (consumer secret) : 21864....158
+Input redirect URI : http://localhost:34321/oauth2/callback
+Input login URL (default is https://login.salesforce.com) : 
+Client registered successfully.
+&gt;
+</code></pre><p>Once OAuth2 authorization has been accomplished, the connection will automatically be refreshed even after session expiry. You can use <code>.connect</code> command with authorized Salesforce username, then connect automatically without password prompt.</p>
+<pre><code>&gt; .connect username@example.org
+Refreshing access token ... 
+Logged in as : username@example.org
+&gt;
+</code></pre><p>The <code>.authorize</code> and <code>.register</code> command accepts an optional argument which can specify client name. So you can switch multiple OAuth2 clients for sandbox, prerelease, or private login server hosted under My Domain.</p>
+<h3 id="2-use-tab-key-to-complete-everything">2. Use &quot;Tab&quot; Key to Complete Everything</h3>
+<p>As the JSforce REPL is an extension of Node.js REPL, it can complete method names or properties defined in JSforce APIs. For example, when you want to try <code>describeGlobal()</code> API in the REPL, type <code>desc</code> and press &quot;Tab&quot; key. It automatically completes the word to <code>describe</code> and show possible candidates in your screen.</p>
+<pre><code>&gt; desc[TAB]
+describe          describe$         describeGlobal    describeGlobal$   describeSObject   describeSObject$
+
+&gt; describe
+</code></pre><p>Not only methods or properties in REPL context, it also completes REPL command arguments. For example, <code>.connect</code> command accepts Salesforce username in its first argument. If you have connections you have established ever, it will automatically complete and show candidate list of usernames.</p>
+<pre><code>&gt; .connect adm[TAB]
+admin@demo01.example.org             admin@demo01.example.org.sandbox              admin@summer14pre.mydomain.org
+
+&gt; .connect admin@
+</code></pre><h3 id="3-utilize-promise-auto-evaluation-to-avoid-callback">3. Utilize Promise Auto Evaluation to Avoid Callback</h3>
+<p>JSforce has two different ways to handle asynchronous API. First one is callback, which is widely used to express asynchronous process in JavaScript world.</p>
+<pre><code>&gt; var debugOut = function(err, res) { if (err) { console.error(err); } else { console.log(res); } }; 
+undefined
+&gt; sobject(&#39;Account&#39;).create({ Name: &#39;My Test Account&#39; }, debugOut);
+{ id: &#39;001E00000169xdnIAA&#39;,
+  success: true,
+  errors: [] }
+</code></pre><p>However, specifing callback function for each time to call out the API is a little cumbersome.</p>
+<p>In JSforce REPL, it adds support of &quot;Promise Auto Evaluation&quot; - if the value returned to REPL has promise A+ interface (thenable) it will be automatically evaluated and waits display output until promise evaluation is completed. This feature brings an experience as if REPL users are making synchronous API call.</p>
+<pre><code>&gt; sobject(&#39;Account&#39;).create({ Name: &#39;My Test Account&#39; });
+{ id: &#39;001E00000169xddIAA&#39;,
+  success: true,
+  errors: [] }
+&gt;
+</code></pre><h3 id="4-utilize-_-variable-to-access-the-latest-evaluated-result">4. Utilize &quot;_&quot; Variable to Access the Latest Evaluated Result</h3>
+<p>Same as Node.js REPL, JSforce REPL has special variable _ (underscore), which contains the result of the last expression. In addition to normal Node.js REPL behavior, it also keeps evaluated value of the promise if the last expression returns a promise value.</p>
+<pre><code>&gt; query(&quot;SELECT Id, Name FROM Account WHERE Name LIKE &#39;P%&#39;&quot;);
+{ totalSize: 1,
+  done: true,
+  records: 
+   [ { attributes: [Object],
+       Id: &#39;001E000000Im0jSIAR&#39;,
+       Name: &#39;Pyramid Construction Inc.&#39; } ] }
+&gt; _.records.length
+1
+&gt;
+</code></pre><p>Please be aware that variable _ (underscore) is overwritten in each REPL evaluation. So if you want to use the value in several times in REPL, you should first evacuate it to another variable.</p>
+<pre><code>&gt; query(&quot;SELECT Id, Name FROM Account WHERE Name LIKE &#39;P%&#39;&quot;);
+{ totalSize: 1,
+  done: true,
+  records: 
+   [ { attributes: [Object],
+       Id: &#39;001E000000Im0jSIAR&#39;,
+       Name: &#39;Pyramid Construction Inc.&#39; } ] }
+&gt; var qr = _;
+{ totalSize: 1,
+  done: true,
+  records: 
+   [ { attributes: [Object],
+       Id: &#39;001E000000Im0jSIAR&#39;,
+       Name: &#39;Pyramid Construction Inc.&#39; } ] }
+&gt; qr.records.length
+1
+&gt; qr.done
+true
+&gt;
+</code></pre><h3 id="5-use-coffescript-repl-to-reduce-typing-effort">5. Use CoffeScript REPL to Reduce Typing Effort</h3>
+<p>Some people may think JavaScript is verbose in description, especially writing parentheses or function declaration. You may prefer CoffeeScript because of its simple and minimal description.</p>
+<p>When you set <code>--coffee</code> option when booting JSforce REPL, it use CoffeeScript REPL instead of Node.js REPL.</p>
+<pre><code>$ jsforce --coffee
+coffee&gt;
+</code></pre><p>To execute a simple SOQL, just type as follows. You can see no parentheses are required.</p>
+<pre><code>coffee&gt; query &quot;SELECT Id, Name FROM Account&quot;
+{ totalSize: 11,
+  done: true,
+  records: 
+   [ { attributes: [Object],
+       Id: &#39;001E000000Im0jSIAR&#39;,
+       Name: &#39;Pyramid Construction Inc.&#39; },
+     { attributes: [Object],
+       Id: &#39;001E000000Im0jQIAR&#39;,
+       Name: &#39;Edge Communications&#39; },
+     { attributes: [Object],
+       Id: &#39;001E000000Im0jUIAR&#39;,
+       Name: &#39;Grand Hotels &amp; Resorts Ltd&#39; },
+       ...
+</code></pre>
+    
+  </div>
+  
+  <div class="post-share">
+    Share This Article :
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c71beb4ff0ea12" async="async"></script>
+    <script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+    </script>
+    <div class="addthis_sharing_toolbox addthis_default_style addthis_32x32_style" style="display: inline-block"></div>
+  </div>
+  <div class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'jsforce'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</article>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>

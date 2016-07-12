@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Deploying Package to Salesforce Using JSforce and Gulp.js - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Deploying Package to Salesforce Using JSforce and Gulp.js - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/posts/20140126-deploy-package-using-jsforce-and-gulpjs.html" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Deploying Package to Salesforce Using JSforce and Gulp.js - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+<article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20140126-deploy-package-using-jsforce-and-gulpjs.html'>Deploying Package to Salesforce Using JSforce and Gulp.js</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jan 26th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p><a href="http://gulpjs.com">Gulp.js</a> is a simple task/build runner to process front-end stuff, which utilizes pipes for streaming data that needs to be processed.</p>
+<p>As gulp.js is running on Node.js, various Node.js-based packages - including JSforce - can be used in build scripts.</p>
+<p>In this article, we&#39;ll show how to deploy a force.com package using gulp, which can contain Force.com metadata objects like custom object/field definitions, Apex classes, Visualforce pages, or CSS/JavaScript/image files as static resource archive.</p>
+<p>(All files including build script and source codes of this article is available from <a href="https://github.com/jsforce/example-gulp-jsforce">here</a>)</p>
+<h2 id="example">Example</h2>
+<p>First, we assume a project with following directory structure :</p>
+<pre><code>├── gulpfile.coffee
+├── package.json
+├── pkg
+│   ├── package.xml
+│   ├── pages
+│   │   ├── MyAppPage.page
+│   │   └── MyAppPage.page-meta.xml
+│   └── staticresources
+│       ├── MyApp.resource
+│       └── MyApp.resource-meta.xml
+└── src
+    ├── images
+    │   └── salesforce.jpg
+    ├── scripts
+    │   └── main.coffee
+    └── styles
+        └── main.less
+</code></pre><p>In this project it has the <code>pkg/</code> directory - a package of Force.com metadata objects for example Apex classes or Visualforce pages.
+The <code>src/</code> directory includes all static files to be built and archived to a zipped static resource file by gulp.</p>
+<p>The <code>gulpfile.coffee</code> is the script which describes building and deploying tasks in CoffeeScript (you can use normal JavaScript if you like, of course).</p>
+<h2 id="building-static-files">Building Static Files</h2>
+<p>Like other general frontend development, you can build JavaScript or CSS files in gulp tasks. In this example we compile CoffeeScript source code to JavaScript, bundle it with all dependencies using browserify, and uglify it to minify the content. For CSS, we compile from LESS stylesheets. Other static files like HTML or images are just copied to temporary build directory.</p>
+<p>When all static files are built, they will be zipped as a static resource file in <code>pkg/staticresources</code> directory.</p>
+<pre><code class="lang-coffee">gulp = require &quot;gulp&quot;
+zip = require &quot;gulp-zip&quot;
+less = require &quot;gulp-less&quot;
+streamify = require &quot;gulp-streamify&quot;
+uglify = require &quot;gulp-uglify&quot;
+minify = require &quot;gulp-minify-css&quot;
+browserify = require &quot;browserify&quot;
+source = require &quot;vinyl-source-stream&quot;
+
+# Building CSS files from LESS source
+gulp.task &quot;css&quot;, -&gt;
+  gulp.src &quot;./src/styles/main.less&quot;
+    .pipe less()
+    .pipe minify()
+    .pipe gulp.dest &quot;./build/css&quot;
+
+# Compile and bundle JS file from CoffeeScript source code
+gulp.task &quot;js&quot;, -&gt;
+  browserify
+    entries: [ &quot;./src/scripts/main.coffee&quot; ]
+    extensions: [ &quot;.coffee&quot; ]
+  .bundle()
+  .pipe source &quot;main.js&quot;
+  .pipe streamify uglify()
+  .pipe gulp.dest &quot;./build/js&quot;
+
+# Copy all static files in src directory to temporary build directory
+gulp.task &quot;statics&quot;, -&gt;
+  gulp.src [ &quot;./src/**/*.html&quot;, &quot;./src/images/**/*&quot; ], base: &quot;./src&quot;
+    .pipe gulp.dest &quot;./build&quot;
+
+# Zip all built files as a static resource file
+gulp.task &quot;zip&quot;, [ &quot;css&quot;, &quot;js&quot;, &quot;statics&quot; ], -&gt;
+  gulp.src &quot;./build/**/*&quot;
+    .pipe zip(&quot;MyApp.resource&quot;)
+    .pipe gulp.dest &quot;./pkg/staticresources&quot;
+
+# Build
+gulp.task &quot;build&quot;, [ &quot;zip&quot; ]
+</code></pre>
+<h2 id="deploying-to-salesforce">Deploying to Salesforce</h2>
+<p>As all frontend files are built, now the time to upload and deploy the Force.com package to Salesforce.
+The deploy task first zips package directory, pipe it to <code>forceDeploy</code> stream which accepts zipped file contents and
+pass it to JSforce <code>Metadata#deploy()</code> API call.</p>
+<pre><code class="lang-coffee">through2 = require &quot;through2&quot;
+jsforce = require &quot;jsforce&quot;
+
+###
+# Returns a stream pipe for deploying zipped package to Salesforce
+###
+forceDeploy = (username, password) -&gt;
+  through2.obj (file, enc, callback) -&gt;
+    conn = new jsforce.Connection()
+    conn.login username, password
+    .then -&gt;
+      conn.metadata.deploy(file.contents).complete(details: true)
+    .then (res) -&gt;
+      if res.details?.componentFailures
+        console.error res.details?.componentFailures
+        return callback(new Error(&#39;Deploy failed.&#39;))
+      callback()
+    , (err) -&gt;
+      console.error(err)
+      callback(err)
+
+###
+# Deploying package to Salesforce
+###
+gulp.task &quot;deploy&quot;, -&gt;
+  gulp.src &quot;./pkg/**/*&quot;, base: &quot;.&quot;
+    .pipe zip(&quot;pkg.zip&quot;)
+    .pipe forceDeploy(process.env.SF_USERNAME, process.env.SF_PASSWORD)
+
+
+# Default entry point
+gulp.task &quot;default&quot;, [ &quot;build&quot;, &quot;deploy&quot; ]
+</code></pre>
+<h2 id="running-gulp">Running Gulp</h2>
+<p>Now you can build and deploy all files to Salesforce by following command :</p>
+<pre><code>$ SF_USERNAME=xxxx@yourdomain.com SF_PASSWORD=yourpassword gulp
+</code></pre><p>If you have installed <a href="https://github.com/ddollar/foreman">foreman</a>, you can prepare <code>.env</code> file in your project with above credentials and execute following :</p>
+<pre><code>$ foreman run gulp
+</code></pre><p>Of course you can combine <code>gulp.watch</code> to watch file changes and automatically deploy to Salesforce when a change happens.</p>
+<pre><code>gulp.task &quot;watch&quot;, -&gt;
+  gulp.watch &quot;./src/**/*&quot;, [ &quot;build&quot; ]
+  gulp.watch &quot;./pkg/**/*&quot;, [ &quot;deploy&quot; ]
+</code></pre><p>Use <code>gulp watch</code> to start watching file changes.</p>
+<pre><code>$ foreman run gulp watch
+[20:57:46] Requiring external module coffee-script/register
+[20:57:49] Using gulpfile /tmp/gulp-jsforce-example/gulpfile.coffee
+[20:57:49] Starting &#39;watch&#39;...
+[20:57:49] Finished &#39;watch&#39; after 44 ms
+</code></pre>
+    
+  </div>
+  
+  <div class="post-share">
+    Share This Article :
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c71beb4ff0ea12" async="async"></script>
+    <script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+    </script>
+    <div class="addthis_sharing_toolbox addthis_default_style addthis_32x32_style" style="display: inline-block"></div>
+  </div>
+  <div class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'jsforce'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</article>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
