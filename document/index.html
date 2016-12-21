@@ -955,6 +955,25 @@ report.instance(instanceId).retrieve(function(err, result) {
   // ...
 });
 </code></pre>
+<h3 id="clone-report">Clone Report</h3>
+<p><code>Analytics#report(reportId)</code> gives a reference to the report object specified in <code>reportId</code>.
+By calling <code>Analytics-Report#clone(name)</code>, you can clone the report in Salesforce.</p>
+<pre><code class="lang-javascript">/* @interactive */
+var reportId = &#39;00O10000000pUw2EAE&#39;;
+conn.analytics.report(reportId).clone('report-name', function(err, result) {
+  if (err) { return console.error(err); }
+  console.log(result.reportMetadata.id);
+});
+</code></pre>
+<h3 id="delete-report">Delete Report</h3>
+<p><code>Analytics#report(reportId)</code> gives a reference to the report object specified in <code>reportId</code>.
+By calling <code>Analytics-Report#destroy()</code>, you can delete the report in Salesforce.</p>
+<pre><code class="lang-javascript">/* @interactive */
+var reportId = &#39;00O10000000pUw2EAE&#39;;
+conn.analytics.report(reportId).destroy(function(err) {
+  if (err) { return console.error(err); }
+});
+</code></pre>
 
 
 <h2 id="apex-rest">Apex REST</h2>
