@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Blog - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Blog - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/2/" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Blog - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/jsforce-web-console/" class="menu-item" title="Web Console">
+              
+              Web Console
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20150620-lightning-boxcarred-action-behavior.html'>Lightning's &quot;Boxcarred Action&quot; and Its Behavior</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jun 20th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>If you are developing an app on Lightning framework of Salesforce, you may know that the framework has <code>$A.enqueueAction()</code> method call to invoke server-side Apex.</p>
+<p>As the name suggests, it does not send the request to the server immediately -
+it queues the request instead and bundle all requests queued during certain time period.</p>
+<p>This mechanism is called &quot;<a href="http://pchittum.com/2015/04/20/Lightning-Component-Action-Service/">Boxcarred Action</a>&quot; - the salesforce.com evangelist Peter Chittum&#39;s blog.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20150620-lightning-boxcarred-action-behavior.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20150405-querying-salesforce-without-consuming-api-quota.html'>Querying Salesforce Data Without Consuming API Request Quota</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Apr 5th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>In order to query the data stored in Salesforce, a query language named SOQL is used generally.
+As Salesforce opens REST/SOAP API endpoint access, we can send the SOQL message in the API request.</p>
+<p>This API can also be used when you are developing HTML5, Single Page Application(SPA).
+You might have to care about Same Origin Policy and Cross Origin Resource Sharing (CORS) setting if the app resides outside of Salesforce,
+but not applied to the case when the app is served on Visualforce Page.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20150405-querying-salesforce-without-consuming-api-quota.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20140126-deploy-package-using-jsforce-and-gulpjs.html'>Deploying Package to Salesforce Using JSforce and Gulp.js</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jan 26th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p><a href="http://gulpjs.com">Gulp.js</a> is a simple task/build runner to process front-end stuff, which utilizes pipes for streaming data that needs to be processed.</p>
+<p>As gulp.js is running on Node.js, various Node.js-based packages - including JSforce - can be used in build scripts.</p>
+<p>In this article, we&#39;ll show how to deploy a force.com package using gulp, which can contain Force.com metadata objects like custom object/field definitions, Apex classes, Visualforce pages, or CSS/JavaScript/image files as static resource archive.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20140126-deploy-package-using-jsforce-and-gulpjs.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20140115-jsforce-repl-tips.html'>5 Tips You Should Know When Using JSforce REPL</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jan 15th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>If you are already using JSforce, you may be aware of its REPL. If not, you are definitely spending time and spending in learning APIs.</p>
+<p>JSforce REPL is an extension of Node.js REPL (Read-Eval-Print Loop), which enables you to try and execute Salesforce APIs (REST, Bulk, Chatter, Metadata, and so on) in interactive manner.</p>
+<p>I recently noticed that people are not fully utilizing features in the REPL. Here I would like to pick up some tips in JSforce REPL which I really think very useful.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20140115-jsforce-repl-tips.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+
+<div class="page-nav">
+  
+  
+  <a class="page-nav-newer" href="/blog/index.html">Newer &raquo; <span class="icon icon-arrow-right-2"></span></a>
+  
+</div>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
