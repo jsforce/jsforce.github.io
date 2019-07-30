@@ -314,6 +314,8 @@ var conn = new jsforce.Connection({
 <pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
 var conn = new jsforce.Connection({
   oauth2 : {
+    // you can change loginUrl to connect to sandbox or prerelease env.
+    // loginUrl : 'https://test.salesforce.com',
     clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
     clientSecret : &#39;&lt;your Salesforce OAuth2 client secret is here&gt;&#39;,
     redirectUri : &#39;&lt;your Salesforce OAuth2 redirect URI is here&gt;&#39;
