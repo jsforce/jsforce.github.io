@@ -47,4 +47,6 @@ These docs are for jsforce v3.
 
 <%- @partial('document/tooling') %>
 
+<%- @partial('document/request') %>
+
 <%- @partial('document/advanced') %>
