@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Previewing JSforce 2.0 alpha with its Schema Type support in TypeScript - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Previewing JSforce 2.0 alpha with its Schema Type support in TypeScript - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/posts/20191216-jsforce20-alpha-preview-with-schema-type-feature.html" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Previewing JSforce 2.0 alpha with its Schema Type support in TypeScript - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/jsforce-web-console/" class="menu-item" title="Web Console">
+              
+              Web Console
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+<article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20191216-jsforce20-alpha-preview-with-schema-type-feature.html'>Previewing JSforce 2.0 alpha with its Schema Type support in TypeScript</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Dec 16th, 2019
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>We&#39;ve recently published the first alpha version of JSforce 2.0. You can simply access to the latest alpha by following command.</p>
+<pre><code>$ npm i -g jsforce@alpha
+</code></pre><p><a href="https://github.com/jsforce/jsforce/issues/889">As already announced</a>, this version has been re-written in TypeScript, which is now becoming the most popular programming language not only for frontend web application developers but for server-side application developers using Node.js.</p>
+<p>Of course it has non-official type definitions for JSforce lib in <a href="https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/jsforce">DefinitelyTyped</a>, the natively bundled type definitions are more consistent and sophisticated. </p>
+<p>The most important and fascinating feature in 2.0 is <strong>Schema Type</strong> support - which is all for developers who code applications in TypeScript language.
+With the feature you can write code safely by checking object/field value types, and easily by completing them in the IDE like Visual Studio Code.</p>
+<p>Please check the following GIF to see how the completion works.</p>
+<p><img src="./images/20191216/jsforce-2-autocomplete-demo.gif" alt="jsforce2-autocomplete-demo"></p>
+<h2 id="how-to-use-schema-type-in-your-code">How to use Schema Type in your code</h2>
+<p>Here is an example code to use the schema type feature in TypeScript.</p>
+<pre><code class="lang-typescript">import jsforce, { Connection, StandardSchema } from &#39;jsforce&#39;;
+
+async function main() {
+  // Specify schema of connecting organization
+  const conn = new Connection&lt;StandardSchema&gt;();
+  await conn.login(process.env.SF_USERNAME, process.env.SF_PASSWORD);
+
+  // fetch records using find()
+  const recs = await conn.sobject(&#39;Opportunity&#39;).find({
+    CloseDate: { $lte: jsforce.Date.YESTERDAY },
+    IsClosed: true
+  });
+
+  // output retrieved records info
+  for (const rec of recs) {
+    console.log(rec.Name, rec.Amount, rec.LastActivityDate);
+  }
+}
+main();
+</code></pre>
+<p>You may have noticed that it is passing <code>StandardSchema</code> type when creating <code>Connection</code> instance.
+By passing a Schema Type in the type variable of the constructor, the connection can aware the organization&#39;s object/field schema and use it in its type checking and inference.
+The <code>StandardSchema</code> is a built-in Schema Type which has only standard Salesforce objects and fields information in the type definition.
+If you are using custom objects or fields in your app, you can generate custom Schema Type definition by using <code>jsforce-gen-schema</code> command.</p>
+<pre><code>$ jsforce-gen-schema --help
+Usage: jsforce-gen-schema [options]
+
+Options:
+  -u, --username [username]      Salesforce username
+  -p, --password [password]      Salesforce password (and security token, if available)
+  -c, --connection [connection]  Connection name stored in connection registry
+  -l, --loginUrl [loginUrl]      Salesforce login url
+  -n, --schemaName [schemaName]  Name of schema type (default: &quot;MySchema&quot;)
+  -o, --outputFile &lt;outputFile&gt;  Generated schema file path (default: &quot;./schema.d.ts&quot;)
+  --sandbox                      Login to Salesforce sandbox
+  --no-cache                     Do not generate cache file for described result in tmp directory
+  --clearCache                   Clear all existing described cache files
+  -V, --version                  output the version number
+  -h, --help                     output usage information
+
+$ jsforce-gen-schema -u username@example.org -p pass123 -n MySchema -o ./myschema.d.ts
+Logged in as : username@example.org
+describing global
+describing AcceptedEventRelation
+describing Account
+describing AccountBrand
+describing AccountBrandShare
+describing AccountChangeEvent
+describing AccountCleanInfo
+...
+Dumped to: ./myschema.d.ts
+</code></pre><p>To use the generated schema type, you simply import the generated type definition file and pass the imported schema to connection constructor type variable.</p>
+<pre><code class="lang-typescript">import jsforce, { Connection } from &#39;jsforce&#39;;
+import { MySchema } from &#39;./myschema&#39;;
+// ...
+
+const conn = new Connection&lt;MySchema&gt;();
+</code></pre>
+<p>If you give a schema type in the connection, API calls like <code>SObject#find()</code> query or CRUD operations are to be statically checked according to the corresponding field definitions in the schema.
+Although available fields are surely typed according to their field definitions in the Salesforce organization, fields which are not defined in the schema are currently typed to <code>any</code> - this behavior might be changed in the production release.</p>
+<pre><code class="lang-typescript">const conn = new Connection&lt;StandardSchema&gt;();
+// ...
+
+const accs = await conn.sobject(&#39;Account&#39;).find({
+  Type: [&#39;Partner&#39;, &#39;Customer&#39;],
+  BillingCountry: &#39;JP&#39;
+});
+for (const acc of accs) {
+  console.log(acc.Id); // acc.Id: string
+  console.log(acc.Name); // acc.Name: string
+  console.log(acc.NumberOfEmployees); // acc.NumberOfEmployees: number | null
+  console.log(acc.FieldNotDefined); // acc.FieldNotDefined: any
+}
+
+const opps = await conn.sobject(&#39;Opportunity&#39;).find(
+  {
+    Type: &#39;New Business&#39;
+  },
+  // specify selecting fields in array
+  [
+    &#39;Id&#39;,
+    &#39;Name&#39;,
+    &#39;Amount&#39;,
+    // if you want to select fields in relationship, specify them in the object with relationship name in the key.
+    { Account: [&#39;Id&#39;, &#39;Name&#39;] },
+    // the wildcard will fetch all fields defined in the related object
+    { Owner: &#39;*&#39; }
+  ]
+);
+for (const opp of opps) {
+  console.log(opp.Id); // opp.Id: string;
+  console.log(opp.Name); // opp.Name: string;
+  console.log(opp.Amount); // opp.Amount: number | null;
+  console.log(opp.Account?.Id); // opp.Account?.Id: string | undefined;
+  console.log(opp.Account?.Name); // opp.Account?.Name: string | undefined;
+  console.log(opp.Owner.Username); // opp.Owner.Username: string;
+  console.log(opp.Owner.IsActive); // opp.Owner.IsActive: boolean;
+  console.log(opp.FieldNotDefined); // opp.FieldNotDefined: any;
+}
+</code></pre>
+<p>If you don&#39;t specify any schema type, the result will remain the same as before the 2.0.
+If no Schema Type, you have to check by yourself if the fields are available in the queried result, or give an explicit type annotation for the record.</p>
+<pre><code class="lang-typescript">const conn = new Connection();
+// ...
+
+const accs = await conn.sobject(&#39;Account&#39;).find();
+for (const acc of accs) {
+  console.log(acc.Id); // acc.Id: string | undefined;
+  console.log(acc.Name); // acc.Name: any;
+  console.log(acc.NumberOfEmployees); // acc.NumberOfEmployees: any;
+  console.log(acc.FieldNotDefined); // acc.FieldNotDefined: any;
+}
+
+type OppRecord = {
+  Id: string;
+  Name: string;
+  Amount: number | null;
+};
+const opps = await conn.sobject(&#39;Opportunity&#39;).find&lt;OppRecord&gt;();
+for (const opp of opps) {
+  console.log(opp.Id); // opp.Id: string;
+  console.log(opp.Name); // opp.Name: string;
+  console.log(opp.Amount); // opp.Amount: number | null;
+  console.log(opp.FieldNotDefined); // error: Property &#39;FieldNotDefined&#39; does not exist on type &#39;OppRecord&#39;.
+}
+</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>The Schema Type feature will let you write a code easily and safely with Salesforce organization schema.
+It is robust as same as the Apex in the Salesforce, and much more comfortable owing to the type inferences in TypeScript.
+If you are going to try it, please give us feedback.</p>
+
+    
+  </div>
+  
+  <div class="post-share">
+    Share This Article :
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c71beb4ff0ea12" async="async"></script>
+    <script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+    </script>
+    <div class="addthis_sharing_toolbox addthis_default_style addthis_32x32_style" style="display: inline-block"></div>
+  </div>
+  <div class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'jsforce'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</article>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>

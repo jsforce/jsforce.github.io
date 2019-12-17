@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Blog - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Blog - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Blog - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/jsforce-web-console/" class="menu-item" title="Web Console">
+              
+              Web Console
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20191216-jsforce20-alpha-preview-with-schema-type-feature.html'>Previewing JSforce 2.0 alpha with its Schema Type support in TypeScript</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Dec 16th, 2019
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>We&#39;ve recently published the first alpha version of JSforce 2.0. You can simply access to the latest alpha by following command.</p>
+<pre><code>$ npm i -g jsforce@alpha
+</code></pre><p><a href="https://github.com/jsforce/jsforce/issues/889">As already announced</a>, this version has been re-written in TypeScript, which is now becoming the most popular programming language not only for frontend web application developers but for server-side application developers using Node.js.</p>
+<p>Of course it has non-official type definitions for JSforce lib in <a href="https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/jsforce">DefinitelyTyped</a>, the natively bundled type definitions are more consistent and sophisticated. </p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20191216-jsforce20-alpha-preview-with-schema-type-feature.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20180726-jsforce19-features.html'>JSforce 1.9 and Its Change on Multi-Record CRUD Operation</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jul 26th, 2018
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>JSforce version 1.9.0 is now released, which includes several enhancements, but the most big one is the enhancement of multi-record CRUD operation.</p>
+<p>Even in prior versions you can of course create/retrieve/update/delete multiple records in one call, using <code>SObject#create(records)</code>, <code>SObject#retrieve(ids)</code>, <code>SObject#update(records)</code>, or <code>SObject#destroy(ids)</code>.
+But its internal implementation was a little pity - each of input records were mapped to REST API request and called in parallel.
+As a result, this CRUD call eagerly consumed API quota, so it was not suitable to use when the num of records exceeds certain amount.
+The connection option <code>maxRequest</code> parameter (default value is 10) was introduced in order not to make excessive concurrent calls.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20180726-jsforce19-features.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20170629-salesforce-dx-with-jsforce.html'>Creating Scratch Org in Salesforce DX from API using JSforce</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Jun 29th, 2017
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>Now <a href="https://developer.salesforce.com/platform/dx">SalesforceDX</a> has finally become &quot;Open Beta&quot;.
+There are many features related to improving the &quot;DX&quot;, but the most anticipated feature must be &quot;Scratch Org&quot;,
+which you can create a brand new clean Salesforce organization programatically and instantly.
+Thanks to this feature you can reduce the possibility of environment-dependent test errors/successes you might have faced when you reused one organization repeatedly.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20170629-salesforce-dx-with-jsforce.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20151106-jsforce-metadata-tools.html'>JSforce Metadata Tools</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Nov 6th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>JSforce has several features including Salesforce Metadata API access.
+So by using JSforce we can create not only a JavaScript application but also a deployment task of Salesforce package.</p>
+<p>I previously wrote <a href="./20140126-deploy-package-using-jsforce-and-gulpjs.html">how JSforce can be used in Salesforce package deployment on Gulp.js</a>, and there are NPM packages called <a href="https://www.npmjs.com/package/gulp-jsforce-deploy">gulp-jsforce-deploy</a> or <a href="https://www.npmjs.com/package/gulp-jsforce-deploy">grunt-jsforce-deploy</a>.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20151106-jsforce-metadata-tools.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+  
+  <hr />
+  
+  <article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20150826-how-to-use-jsforce-web-console.html'>How to Use JSforce Web Console</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Aug 26th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>JSforce is useful not only for developing Salesforce application but also for learning Salesforce API itself.
+JSforce has a &quot;REPL mode&quot; - you can issue an API request and confirm the result interactively from your terminal console.
+The result can be manipulated in JavaScript, so you can even run a simple script in the REPL.</p>
+<p>You know there is a well-known web application to check Salesforce APIs casually - <a href="https://workbench.developerforce.com/">Workbench</a>.
+This web app does provide interfaces for many APIs of Salesforce, but just for checking the response.
+It is not connected to the execution of scripts.</p>
+      <div class="post-readmore">
+        <a href='/blog/posts/20150826-how-to-use-jsforce-web-console.html'>Read More</a>
+      </div>
+    
+  </div>
+  
+</article>
+
+
+<div class="page-nav">
+  
+  <a class="page-nav-older" href="/blog/2/index.html"><span class="icon icon-arrow-left-2"></span> &laquo; Older</a>
+  
+  
+</div>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>

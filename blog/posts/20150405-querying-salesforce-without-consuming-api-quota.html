@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Querying Salesforce Data Without Consuming API Request Quota - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Querying Salesforce Data Without Consuming API Request Quota - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/blog/posts/20150405-querying-salesforce-without-consuming-api-quota.html" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Querying Salesforce Data Without Consuming API Request Quota - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+
+
+</head>
+<body class="blog">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/jsforce-web-console/" class="menu-item" title="Web Console">
+              
+              Web Console
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Blog</h2>
+        <p>Latest information about JSforce, interesting use cases, code snippets, etc.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+<article id="post" class="post">
+  <h2 class="post-title"><a href='/blog/posts/20150405-querying-salesforce-without-consuming-api-quota.html'>Querying Salesforce Data Without Consuming API Request Quota</a></h2>
+  <div class="post-meta">
+    
+    <span class="post-author">
+    By: 
+      <a href="https://github.com/stomita">
+      <span class="post-author-name">Shinichi Tomita</span>
+      </a>
+    </span>
+    |
+    
+    <span class="post-date">
+    Published:
+      Apr 5th, 2015
+    </span>
+  </div>
+  <div class="post-content">
+    
+      <p>In order to query the data stored in Salesforce, a query language named SOQL is used generally.
+As Salesforce opens REST/SOAP API endpoint access, we can send the SOQL message in the API request.</p>
+<p>This API can also be used when you are developing HTML5, Single Page Application(SPA).
+You might have to care about Same Origin Policy and Cross Origin Resource Sharing (CORS) setting if the app resides outside of Salesforce,
+but not applied to the case when the app is served on Visualforce Page.</p>
+<h2 id="api-limitation-and-workarounds">API Limitation and Workarounds</h2>
+<p>Talking about the Salesforce API, there is an important limitation which we must care about.
+That is, the Salesforce API has a request quota per day per organization -
+roughly saying, there is an upper limit in proportion to the number of subscribing user licenses.
+Because of this limitation, a bad-mannered application which calls API request frequently could easily run out of the resource.</p>
+<h3 id="javascript-remoting">JavaScript Remoting</h3>
+<p>However, when your SPA is working on Visualforce Page, there is a workaround - <a href="https://developer.salesforce.com/docs/atlas.en-us.pages.meta/pages/pages_js_remoting.htm">JavaScript Remoting</a>.</p>
+<p>JavaScript Remoting is a Force.com feature to access Apex class static method from Visualforce by calling asynchronous JavaScript function.
+In JavaScript Remoting, apex code basically defines data access query, in contrast to the case of executing SOQL query via API.</p>
+<h5 id="server-apex-">Server (Apex)</h5>
+<pre><code class="lang-java">public class RemoteController {
+    @RemoteAction
+    public static List&lt;Account&gt; searchAccount(String name) {
+        name = name+&#39;%&#39;;
+        return [SELECT Id, Name, Type FROM Account WHERE Name LIKE :name];
+    }
+}
+</code></pre>
+<h5 id="client-javascript-">Client(JavaScript)</h5>
+<pre><code class="lang-javascript">RemoteController.searchAccount(&#39;ACME&#39;, function(accounts, event) {
+    if (event.status) {
+        console.log(accounts);
+    } else if (event.type === &#39;exception&#39;) {
+        console.error(event.message, event.where);
+    )
+});
+</code></pre>
+<h3 id="remotetk">RemoteTK</h3>
+<p>Using this JavaScript Remoting feature, Pat Patterson in salesforce.com had previously published a library named  <a href="https://developer.salesforce.com/blogs/developer-relations/2012/10/not-calling-the-rest-api-from-javascript-in-visualforce-pages.html">RemoteTK</a>.</p>
+<p>Roughly saying, RemoteTK is a technique which serves a JavaScript Remoting method accepting raw SOQL query string, passing it directly to query execution engine, then returning the queried result.</p>
+<pre><code class="lang-java">@remoteAction
+public static String query(String soql) {
+    List&lt;sObject&gt; records;
+    try {
+        records = Database.query(soql);
+    } catch (QueryException qe) {
+        return makeError(qe.getMessage(), &#39;INVALID_QUERY&#39;);
+    }
+
+    Map&lt;String, Object&gt; result = new Map&lt;String, Object&gt;();
+    result.put(&#39;records&#39;, records);
+    result.put(&#39;totalSize&#39;, records.size());
+    result.put(&#39;done&#39;, true);
+
+    return JSON.serialize(result);
+}
+</code></pre>
+<p>As it will be stated later, this approach has a significant problem. The RemoteTk code was opened inside of <a href="https://github.com/developerforce/Force.com-JavaScript-REST-Toolkit">Force.com JavaScript Toolkit</a>, but now it has been removed.</p>
+<h3 id="visualforce-remote-object">Visualforce Remote Object</h3>
+<p>Another new workaround is <a href="https://developer.salesforce.com/docs/atlas.en-us.pages.meta/pages/pages_remote_objects.htm">Visualforce Remote Objects</a>, which is generally available from Winter&#39;15.
+It also can be used to avoid consuming API request quota.</p>
+<pre><code class="lang-html">   &lt;apex:remoteObjects &gt;
+        &lt;apex:remoteObjectModel name=&quot;Warehouse__c&quot; jsShorthand=&quot;Warehouse&quot;
+            fields=&quot;Name,Id&quot;&gt;
+            &lt;apex:remoteObjectField name=&quot;Phone__c&quot; jsShorthand=&quot;Phone&quot;/&gt;
+        &lt;/apex:remoteObjectModel&gt;
+    &lt;/apex:remoteObjects&gt;
+
+    &lt;!-- JavaScript to make Remote Objects calls --&gt;
+    &lt;script&gt;
+        var fetchWarehouses = function(){
+            // Create a new Remote Object
+            var wh = new SObjectModel.Warehouse();
+
+            // Use the Remote Object to query for 10 warehouse records
+            wh.retrieve({ limit: 10 }, function(err, records, event){
+                if(err) {
+                    alert(err.message);
+                }
+                else {
+                    var ul = document.getElementById(&quot;warehousesList&quot;);
+                    records.forEach(function(record) {
+                        // Build the text for a warehouse line item
+                        var whText = record.get(&quot;Name&quot;);
+                        whText += &quot; -- &quot;;
+                        whText += record.get(&quot;Phone&quot;);
+
+                        // Add the line item to the warehouses list
+                        var li = document.createElement(&quot;li&quot;);
+                        li.appendChild(document.createTextNode(whText));
+                        ul.appendChild(li);
+                    });
+                }
+            });
+        };
+    &lt;/script&gt;
+</code></pre>
+<h2 id="issues-for-each-workarounds">Issues for Each Workarounds</h2>
+<p>Above workarounds cannot be perfect solutions which can replace the usage of API. I&#39;ll state the reasons why:</p>
+<h3 id="1-javascript-remoting-cannot-describe-query-freely">1. JavaScript Remoting cannot describe query freely</h3>
+<p>When using JavaScript Remoting, it is common that the query construction will be done in server-side.
+Clients would not be entitled to specify the query as flexible as SOQL.
+Of course, you can manage it by passing parameters and constructing SOQL dynamically, but it tends to be a complex work.</p>
+<h3 id="2-remotetk-is-not-secure">2. RemoteTK is not secure</h3>
+<p>When executing SOQL via Salesforce API, the data access is always protected under the authorized user&#39;s context.
+That is, it is secure because it assures that the user cannot access the data which are not allowed by sharing rule or object/field access permission.
+In other word, any query you request via API will get the information which you can browse in a web browser.</p>
+<p>However, query in Apex code runs under system privilege.
+Record-level access control is applied when the Apex class has <code>with sharing</code> keyword, but object-level and field-level access control will be ignored.</p>
+<p>As RemoteTK executes a raw SOQL received from the client, it easily leads to elevation of privilege.</p>
+<h3 id="3-visualforce-remote-objects-is-still-not-flexible">3. Visualforce Remote Objects is still not flexible</h3>
+<p>In Visualforce Remote Objects, the query will be executed under the logged-in user&#39;s context. So the elevation of privilege issue stated above will not occur.
+In addition to that, it seems flexible because the query can set filters or sort order conditions in JavaScript.
+However, even Remote Objects still faces a limitation of flexibility.</p>
+<p>First, you should pre-define target objects/fields to retrieve in a query using tags in Visualforce page.
+There are applications which really need to specify target objects/fields dynamically.
+SOQL from API can do this, but Remote Objects cannot.</p>
+<p>Secondly, there is a limitation of fetching fields - it must be a field of the target object.
+That is, you cannot walk through relationship fields, neither parent nor child.</p>
+<h3 id="features-for-ideal-salesforce-data-query">Features for Ideal Salesforce Data Query</h3>
+<p>Now I summary the ideal data query features while developing SPA of Salesforce.</p>
+<ol>
+<li>Can construct query dynamically in client side (JavaScript controls it)</li>
+<li>Securely respects access control setting in Salesforce</li>
+<li>Doesn&#39;t consume API request quota</li>
+</ol>
+<p>RemoteTK achieved 1. and 3., but 2. was essentially impossible.
+To support Field-level security (FLS) it needs parsing SOQL, which is not only very difficult in Apex but also seems futile work.</p>
+<p>Remote Objects seems doing well each of them, but my expectation is far beyond.</p>
+<h2 id="solution">Solution</h2>
+<p>The problem of RemoteTK was it cannot check FLS because query is serialized in SOQL.
+Consider that if it were passed as already parsed data structure, it would be another story.
+Apex has the way to describe object or field&#39;s metadata and check the access control information of the current user.
+Using this information, it will be possible to check whether all target objects and fields in the query are accessible or not.</p>
+<p>So, we use JSON string as a query, not raw SOQL like RemoteTK.
+RemoteTK is doing a similar usage of JSON as query, but my proposal is to include not only filter or sort condition but also retrieving fields and target objects.</p>
+<h5 id="client-javascript-">Client (JavaScript)</h5>
+<pre><code class="lang-javascript">// Define query in JSON
+var queryConfig = {
+  &quot;fields&quot;: [ &quot;Id&quot;, &quot;Name&quot;, &quot;Account.Name&quot; ],
+  &quot;table&quot;: &quot;Contact&quot;,
+  &quot;condition&quot;: {
+    &quot;operator&quot;: &quot;AND&quot;,
+    &quot;conditions&quot;: [{
+       &quot;field&quot;: &quot;CloseDate&quot;,
+       &quot;operator&quot;: &quot;=&quot;,
+       &quot;value&quot;: { &quot;type&quot;: &quot;date&quot;, &quot;value&quot;: &quot;THIS_MONTH&quot; }
+    }, {
+       &quot;field&quot;: &quot;Amount&quot;,
+       &quot;operator&quot;: &quot;&gt;&quot;,
+       &quot;value&quot;: 20000
+    }]
+  },
+  &quot;sortInfo&quot;: [{
+    &quot;field&quot;: &quot;CloseDate&quot;,
+    &quot;direction&quot;: &quot;ASC&quot;
+  }],
+  &quot;limit&quot;: 10000
+};
+// Pass the query config to Apex through JavaScript Remoting. JSON should be serialized in advance.
+MyRemoteController.query(JSON.stringify(queryConfig), function(records, event) {
+  if (event.status) {
+    console.log(records);
+  } else {
+    console.error(event.message + &#39;: &#39; + event.where);
+  }
+});
+</code></pre>
+<h5 id="server-apex-">Server (Apex)</h5>
+<pre><code class="lang-java">public with sharing class MyRemoteController {
+    @RemoteAction
+    public static List&lt;SObject&gt; query(String queryJSON) {
+        Map&lt;String, Object&gt; qconfig = (Map&lt;String, Object&gt;) JSON.deserializeUntyped(queryJSON);
+        Query query = new Query(qconfig);
+        query.validate(); // HERE we check FLS and other access control
+        return Database.query(query.toSOQL());
+    }
+}
+</code></pre>
+<p>You can see the query execution is done in Apex runtime just like RemoteTK, so Apex governor limit will also be applied (e.g. maximum number of querying records).
+On the other hand, Remote Objects has its own different limit - for example maximum 100 records per request, and offset value doesn&#39;t have a limit (see Developer&#39;s Guide).</p>
+<h2 id="source-code">Source Code</h2>
+<p>The Apex classes used in the above description is published in GitHub.</p>
+<p><a href="https://github.com/stomita/soql-secure">https://github.com/stomita/soql-secure</a></p>
+<p>Additionally there is a runnable demo hosted on Force.com Site.</p>
+<p><a href="https://soql-remoting-demo-developer-edition.ap2.force.com/">https://soql-remoting-demo-developer-edition.ap2.force.com/</a></p>
+<p>From the aspect of building SOQL dynamically, there is a well-known library named <a href="http://apex-commons.github.io/query/soql-builder/">SOQL builder</a> in <a href="http://apex-commons.github.io/">Apex Commons</a>, <a href="https://github.com/stomita/soql-secure">soql-secure</a> is different because it generates a secure SOQL with FLS checking from JSON definition.</p>
+<h2 id="summary-and-opinion">Summary and Opinion</h2>
+<p>Because soql-secure library which I introduced here is still under PoC phase, it is too early to adopt in production.
+Personally I am considering to add an extension in JSforce library to bypass the API request call when it can utilize soql-secure.</p>
+<p>You should note that Remote Objects is a very new feature recently released, and it seems definitely evolving.
+There is a possibility that Remote Objects feature will gain more flexibility in query description on par with SOQL via API.</p>
+<p>However, assuming that it happens, there would remain a question why only API has a call limit with a same query capability.</p>
+<p>In the forum or blogs in Salesforce community, many people are saying welcome to Remote Objects as a killer feature, but I&#39;m not quite satisfied with it because of this reason.
+If there were no API request call limitation, this feature would not have to be introduced.</p>
+<p>In my opinion, the correct way for Salesforce to head is to remove current API request limit, or increase it substantially.
+I know they are saying &quot;API First&quot;. I hope it is not just a marketing slogan.</p>
+
+    
+  </div>
+  
+  <div class="post-share">
+    Share This Article :
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c71beb4ff0ea12" async="async"></script>
+    <script type="text/javascript">
+    var addthis_config = addthis_config||{};
+    addthis_config.data_track_addressbar = false;
+    addthis_config.data_track_clickback = false;
+    </script>
+    <div class="addthis_sharing_toolbox addthis_default_style addthis_32x32_style" style="display: inline-block"></div>
+  </div>
+  <div class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'jsforce'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</article>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
