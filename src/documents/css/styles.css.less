@@ -1,0 +1,206 @@
+@import "mixins.less";
+@import "variables.less";
+@import "extra-variables.less";
+
+body, html {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"
+}
+
+body {
+  padding-top: 50px;
+  color: @text-color;
+  background-color: @accent-color;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-weight: bold;
+}
+
+a {
+  color: @accent-color;
+}
+
+.container {
+  @media (min-width: 1200px) {
+    width: 970px;
+  }
+}
+
+.btn-primary {
+  color: @clear-color;
+  background-color: @accent-color;
+  border-color: darken(@accent-color, 10%);
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+  color: @clear-color;
+  background-color: lighten(@accent-color, 10%);
+  border-color: @accent-color;
+}
+
+#navigation {
+  background-color: @clear-color;
+  margin-bottom: 0;
+  .box-shadow(rgba(27, 27, 27, 0.4) 1px 1px 10px);
+  border: 0px none;
+  overflow: hidden;
+  .navbar-brand {
+    display: inline-block;
+    margin: 2px 10px 2px 2px;
+    background-image: url(../images/jsforce-logo-invert-trans.png);
+    background-repeat: no-repeat;
+    background-size: 65px 45px;
+    width: 65px;
+    height: 45px;
+    text-indent: -10000px;
+  }
+  .navbar-nav {
+    .menu-item {
+@media (max-width: 992px) {
+      padding-left: 10px;
+      padding-right: 10px;
+}
+      height: 50px;
+      line-height: 16px;
+      .menu-icon {
+        line-height: 16px;
+        vertical-align: bottom;
+      }
+    }
+  }
+  .navbar-collapse {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  a {
+    color: @base-color;
+  }
+  .nav > li {
+    text-align: center;
+  }
+  .nav > li.active > a {
+    color: @base-color !important;
+  }
+  .nav > li > a:hover,
+  .nav > li > a:focus {
+    .transition(all 400ms ease);
+    color: @accent-color !important;
+  }
+  .navbar-right li.profile {
+    img {
+      width: 16px;
+      height: 16px;
+    }
+    .profile-name {
+      display: inline-block;
+@media (max-width: 992px) {
+      display: none;
+}
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+  }
+}
+
+#headline {
+  min-height: 90px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: @clear-color;
+  #gradient > .vertical(@base-color, darken(@base-color, 2%));
+  border-bottom: 1px solid @base-color;
+  p {
+    color: fadeout(@clear-color, 30%);
+    font-size: 20px;
+  }
+}
+
+#content {
+  color: @text-color;
+  background-color: @clear-color;
+  padding: 30px 0;
+}
+
+#sidebar {
+  &.affix {
+    top: 90px;
+    width: 220px;
+  }
+  ul {
+    a {
+      display: inline-block;
+      width: 100%;
+      border-left: 4px solid transparent;
+      padding: 6px 15px;
+    }
+    li.active > a {
+      border-left: 4px solid @accent-color;
+      font-weight: bold;
+    }
+    li > ul {
+      display: none;
+    }
+    li.active > ul {
+      display: block;
+      > li a {
+        padding: 4px 15px 4px 30px;
+        border-left-color: transparent;
+      }
+    }
+  }
+}
+
+#footer {
+  font-size: 11px;
+  background-color: @accent-color;
+  padding: 30px 0;
+  min-height: initial;
+  color: rgb(255, 255, 255, 0.6);
+  border-top: 2px solid @accent-color;
+  a {
+    color: rgb(255, 255, 255, 0.6);
+    text-decoration: underline;
+  }
+  .footer-menu {
+    text-align: right;
+  }
+  .copyright {
+  }
+}
+
+/**
+ * Code
+ */
+.hljs {
+  background: transparent;
+}
+
+code.editing {
+  .box-shadow(0px 0px 2px inset);
+  background: white;
+}
+
+.code-controls {
+  margin-bottom: 15px;
+}
+
+.code-result {
+  margin: 12px 0;
+  .output {
+    pre {
+      max-height: 200px;
+    }
+  }
+}
+
+/**
+ * Blog
+ */
+@import "blog.css.less";
