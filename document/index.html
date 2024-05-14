@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+
+<title>Document - JSforce</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Salesforce API Library for JavaScript Applications">
+<meta name="keywords" content="salesforce,javascript,api,node.js">
+<meta property="og:title" content="Document - JSforce" />
+<meta property="og:description" content="Salesforce API Library for JavaScript Applications" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://jsforce.github.io/document/" />
+<meta property="og:image" content="http://jsforce.github.io/images/jsforce-logo.png" />
+<meta property="og:site_name" content="Document - JSforce" />
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap.min.css">
+<!--
+<link rel="stylesheet" href="/asset/bootstrap/css/bootstrap-theme.min.css">
+-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/asset/highlight/styles/default.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script>
+if (location.protocol === "http:" && location.hostname !== "localhost") {
+	location.href = location.href.replace(/^http:/, 'https:');
+}
+</script>
+<script src="/asset/jquery/jquery.min.js"></script>
+<script src="/asset/bootstrap/js/bootstrap.min.js"></script>
+<script src="/asset/highlight/highlight.pack.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script>
+jsforce.browser.init({
+  clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
+  redirectUri: 'https://jsforce.github.io/callback.html',
+  proxyUrl: 'https://node-salesforce-proxy.herokuapp.com/proxy/'
+});
+</script>
+<script src="/js/main.js"></script>
+
+<script src="/js/document.js"></script>
+
+
+</head>
+<body class="document">
+
+<!-- header -->
+<div id="navigation" class="navbar navbar-fixed-top navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#global-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/" title="Top">JSforce</a>
+    </div>
+    <!--everything within this div is collapsed on mobile-->
+    <div class="collapse navbar-collapse" id="global-navbar">
+      <!--main navigation-->
+      <ul class="nav navbar-nav navbar-left">
+        
+          
+          
+          <li class="">
+            <a href="/start/" class="menu-item" title="Getting Started">
+              
+              Getting Started
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="active">
+            <a href="/document/" class="menu-item" title="Document">
+              
+              Document
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/download/" class="menu-item" title="Download">
+              
+              Download
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/blog/" class="menu-item" title="Blog">
+              
+              Blog
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="http://jsforce.github.io/jsforce/doc/" class="menu-item" title="API Reference">
+              
+              API Reference
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="/jsforce-web-console/" class="menu-item" title="Web Console">
+              
+              Web Console
+              
+            </a>
+          </li>
+          
+        
+          
+          
+          <li class="">
+            <a href="https://github.com/jsforce/jsforce" class="menu-item" title="GitHub">
+              
+              <i class="menu-icon fa fa-2x fa-github"></i>
+              
+            </a>
+          </li>
+          
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="login">
+          <a href="#" onclick="$('#oauth-dialog').modal('show');">Login</a>
+        </li>
+        <li class="profile dropdown" style="display:none;">
+          <a href="#" onclick="if(confirm('Logout ?'))jsforce.browser.logout()">
+            <span class="profile-icon"></span>
+            <span class="profile-name"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!--/.navbar-collapse -->
+  </div>
+</div>
+
+<script>
+jsforce.browser.on('connect', function(conn) {
+  var userInfo;
+  if (localStorage.getItem('sf_user_info')) {
+    userInfo = JSON.parse(localStorage.getItem('sf_user_info'));
+    renderProfile();
+    return;
+  }
+  conn.identity().then(function(res) {
+    console.log('id', res);
+    userInfo = {
+      username: res.username,
+      photos: res.photos
+    };
+    localStorage.setItem('sf_user_info', JSON.stringify(userInfo));
+    renderProfile();
+  });
+
+  function renderProfile() {
+    $('#navigation .navbar-right li.login').hide();
+    var profileMenu = $('#navigation .navbar-right li.profile').show();
+    profileMenu.find('.profile-icon').empty().append(
+      $('<img>').attr('src',
+        userInfo.photos && userInfo.photos.thumbnail ?
+        userInfo.photos.thumbnail + '?oauth_token=' + conn.accessToken :
+        '/images/profile-none.png'
+      )
+    );
+    profileMenu.find('.profile-name').text(userInfo.username).attr('title', userInfo.username);
+  }
+});
+jsforce.browser.on('disconnect', function() {
+  localStorage.removeItem('sf_user_info')
+  $('#navigation .navbar-right li.login').show();
+  $('#navigation .navbar-right li.profile').hide();
+});
+</script>
+
+<div id="oauth-dialog" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Connect to Salesforce</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-sm-3" for="oauth2-login-url">Connecting to:</label>
+            <div class="controls col-sm-9">
+              <select id="oauth2-login-url" class="form-control" name="loginUrl">
+                <option value="https://login.salesforce.com">Production (login.salesforce.com)</option>
+                <option value="https://test.salesforce.com">Sandbox (test.salesforce.com)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary connect">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- headline -->
+<div id="headline">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-11">
+        <h2>Document</h2>
+        <p>JSforce library document with brief usage examples of each API</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- content -->
+<div id="content">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-9">
+<h2 id="connection">Connection</h2>
+<h3 id="username-and-password-login">Username and Password Login</h3>
+<p>When you have a Salesforce org username and password (and maybe security token, if required),
+you can use <code>Connection.login(username, password)</code> to establish a connection to the org.</p>
+<p>By default, it uses the SOAP API login endpoint (so, no OAuth2 client information is required).</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  // you can change loginUrl to connect to sandbox or prerelease env.
+  // loginUrl : &#39;https://test.salesforce.com&#39;
+});
+
+const userInfo = await conn.login(username, password)
+
+// logged in user property
+console.log(&quot;User ID: &quot; + userInfo.id);
+console.log(&quot;Org ID: &quot; + userInfo.organizationId);
+</code></pre>
+<h3 id="username-and-password-login-oauth2-resource-owner-password-credential-">Username and Password Login (OAuth2 Resource Owner Password Credential)</h3>
+<p>When OAuth2 client information is given, <code>Connection.login(username, password + security_token)</code> uses OAuth2 Resource Owner Password Credential flow to login to Salesforce.</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  oauth2 : {
+    // you can change loginUrl to connect to sandbox or prerelease env.
+    // loginUrl : &#39;https://test.salesforce.com&#39;,
+    clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
+    clientSecret : &#39;&lt;your Salesforce OAuth2 client secret is here&gt;&#39;,
+    redirectUri : &#39;&lt;callback URI is here&gt;&#39;
+  }
+});
+
+const userInfo = await conn.login(username, password)
+
+// logged in user property
+console.log(&quot;User ID: &quot; + userInfo.id);
+console.log(&quot;Org ID: &quot; + userInfo.organizationId);
+</code></pre>
+<h3 id="session-id">Session ID</h3>
+<p>If you have a Salesforce session ID and its server URL information use it to authenticate.</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  serverUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  sessionId : &#39;&lt;your Salesforce session ID is here&gt;&#39;
+});
+</code></pre>
+<h3 id="access-token">Access Token</h3>
+<p>After the login API call or OAuth2 authorization, you can get the Salesforce access token and its instance URL.
+Next time you can use them to establish a connection.</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  accessToken : &#39;&lt;your Salesforrce OAuth2 access token is here&gt;&#39;
+});
+</code></pre>
+<h3 id="access-token-with-refresh-token">Access Token with Refresh Token</h3>
+<p>If a refresh token is provided in the constructor, the connection will automatically refresh the access token when it has expired.</p>
+<p><b>NOTE</b>: Refresh token is only available for OAuth2 authorization code flow.</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  oauth2 : {
+    clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
+    clientSecret : &#39;&lt;your Salesforce OAuth2 client secret is here&gt;&#39;,
+    redirectUri : &#39;&lt;your Salesforce OAuth2 redirect URI is here&gt;&#39;
+  },
+  instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  accessToken : &#39;&lt;your Salesforrce OAuth2 access token is here&gt;&#39;,
+  refreshToken : &#39;&lt;your Salesforce OAuth2 refresh token is here&gt;&#39;
+});
+conn.on(&quot;refresh&quot;, (accessToken, res) =&gt; {
+  // Refresh event will be fired when renewed access token
+  // to store it in your storage for next request
+});
+
+// Alternatively, you can manually request an updated access token by passing the refresh token to the `oauth2.refreshToken` method.
+const res = await conn.oauth2.refreshToken(refreshToken)
+console.log(res.access_token)
+</code></pre>
+<h3 id="logout">Logout</h3>
+<p>Call <code>Connection.logout()</code> to logout from the server and invalidate current session.
+It is valid for both SOAP API based sessions and OAuth2 based sessions.</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  sessionId : &#39;&lt;session id to logout&gt;&#39;,
+  serverUrl : &#39;&lt;your Salesforce Server url to logout&gt;&#39;
+});
+
+await conn.logout()
+</code></pre>
+
+
+<h2 id="oauth2">OAuth2</h2>
+<p>(Following examples are assuming running on express.js framework.)</p>
+<h3 id="authorization-request">Authorization Request</h3>
+<p>First, you should redirect user to the Salesforce auth page to get authorized. You can get the Salesforce auth URL by calling <code>OAuth2.getAuthorizationUrl(options)</code>.</p>
+<pre><code class="lang-javascript">import { OAuth2 } from &#39;jsforce&#39;;
+
+//
+// OAuth2 client information can be shared with multiple connections.
+//
+const oauth2 = new OAuth2({
+  // you can change loginUrl to connect to sandbox or prerelease env.
+  // loginUrl : &#39;https://test.salesforce.com&#39;,
+  clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
+  clientSecret : &#39;&lt;your Salesforce OAuth2 client secret is here&gt;&#39;,
+  redirectUri : &#39;&lt;callback URI is here&gt;&#39;
+});
+//
+// Get authorization url and redirect to it.
+//
+app.get(&#39;/oauth2/auth&#39;, function(req, res) {
+  res.redirect(oauth2.getAuthorizationUrl({ scope : &#39;api id web&#39; }));
+});
+</code></pre>
+<h3 id="access-token-request">Access Token Request</h3>
+<p>After the acceptance of authorization request, your app is called back from Salesforce with the authorization code in the <code>code</code> URL parameter. Pass the code to <code>Connection.authorize(code)</code> to get an access token.</p>
+<p>For the refresh token to be returned from Salesforce, make sure that the following Scope is included in the Connected App <code>Perform requests at any time (refresh_token, offline_access)</code>
+and <code>refresh_token</code> is included in the call to <code>getAuthorizationUrl()</code>.</p>
+<pre><code class="lang-javascript">//
+// Pass received authorization code and get access token
+//
+import { Connection } from &#39;jsforce&#39;;
+
+app.get(&#39;/oauth2/callback&#39;, function(req, res) {
+  const conn = new Connection({ oauth2 : oauth2 });
+  const code = req.param(&#39;code&#39;);
+
+  const userInfo = await conn.authorize(code)
+
+  // Now you can get the access token, refresh token, and instance URL information.
+  // Save them to establish connection next time.
+  console.log(conn.accessToken);
+  console.log(conn.refreshToken);
+  console.log(conn.instanceUrl);
+  console.log(&quot;User ID: &quot; + userInfo.id);
+  console.log(&quot;Org ID: &quot; + userInfo.organizationId);
+  // ...
+  res.send(&#39;success&#39;); // or your desired response
+});
+</code></pre>
+<h3 id="jwt-bearer-flow-oauth-2-0-jwt-bearer-flow-">JWT Bearer Flow (OAuth 2.0 JWT Bearer Flow)</h3>
+<p>If you have a Connected App you can use the JWT Bearer Flow to authenticate to the org. Pass the bearer token and grant type to <code>Connection.authorize({ bearerToken, grant_type })</code> and get the access token.</p>
+<p>For more information about the setup, see: <a href="https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_jwt_flow.htm&amp;type=5">https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_jwt_flow.htm&amp;type=5</a> </p>
+<pre><code class="lang-javascript">import { Connection } from &#39;jsforce&#39;;
+import * as jwt from &#39;jsonwebtoken&#39;
+
+const conn = new Connection()
+
+const claim = {
+  iss: ISSUER,
+  aud: AUDIENCE,
+  sub: &#39;user01@mydomain.example.org&#39;,
+  exp: Math.floor(Date.now() / 1000) + 3 * 60
+};
+const bearerToken = jwt.sign(claim, cert, { algorithm: &#39;RS256&#39;});
+const userInfo = await conn.authorize({
+  grant_type: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
+  assertion: bearerToken
+});
+
+// Now you can get the access token and instance URL information.
+// Save them to establish a connection next time.
+console.log(conn.accessToken);
+console.log(conn.instanceUrl);
+
+// logged in user property
+console.log(&quot;User ID: &quot; + userInfo.id);
+console.log(&quot;Org ID: &quot; + userInfo.organizationId);
+</code></pre>
+
+
+<h2 id="query">Query</h2>
+<h3 id="using-soql">Using SOQL</h3>
+<p>By using <code>Connection.query(soql)</code>, you can achieve very basic SOQL query to fetch Salesforce records.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.query(&#39;SELECT Id, Name FROM Account&#39;);
+console.log(`total: ${res.totalSize}`)
+console.log(`fetched: ${res.records.length}`)
+</code></pre>
+<h4 id="event-driven-style">Event-Driven Style</h4>
+<p>When a query is executed, it emits a &quot;record&quot; event for each fetched record. By listening the event you can collect fetched records.</p>
+<p>If you want to fetch records exceeding the limit number of returning records per one query, you can use <code>autoFetch</code> option in <code>Query.execute(options)</code> (or its synonym <code>Query.exec(options)</code>, <code>Query.run(options)</code>) method. It is recommended to use <code>maxFetch</code> option also, if you have no idea how large the query result will become.</p>
+<p>When query is completed, <code>end</code> event will be fired. The <code>error</code> event occurs something wrong when doing query.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const records = [];
+const query = conn.query(&quot;SELECT Id, Name FROM Account&quot;)
+  .on(&quot;record&quot;, (record) =&gt; {
+    records.push(record);
+  })
+  .on(&quot;end&quot;, () =&gt; {
+    console.log(&quot;total in database : &quot; + query.totalSize);
+    console.log(&quot;total fetched : &quot; + query.totalFetched);
+  })
+  .on(&quot;error&quot;, (err) =&gt; {
+    console.error(err);
+  })
+  .run({ autoFetch : true, maxFetch : 4000 }); // synonym of Query.execute();
+</code></pre>
+<p><b>NOTE</b>: When <code>maxFetch</code> option is not set, the default value (10,000) is applied. If you really want to fetch more records than the default value, you should explicitly set the maxFetch value in your query.</p>
+<p><b>NOTE</b>: In ver. 1.2 or earlier, the callback style (or promise style) query invokation with <code>autoFetch</code> option only returns records in first fetch. From 1.3, it returns all records retrieved up to <code>maxFetch</code> value.</p>
+<h3 id="using-query-method-chain">Using Query Method-Chain</h3>
+<h4 id="basic-method-chaining">Basic Method Chaining</h4>
+<p>By using <code>SObject.find(conditions, fields)</code>, you can do query in JSON-based condition expression (like MongoDB). By chaining other query construction methods, you can create a query programatically.</p>
+<pre><code class="lang-javascript">/* @interactive */
+//
+// Following query is equivalent to this SOQL
+//
+// &quot;SELECT Id, Name, CreatedDate FROM Contact
+//  WHERE LastName LIKE &#39;A%&#39; AND CreatedDate &gt;= YESTERDAY AND Account.Name = &#39;Sony, Inc.&#39;
+//  ORDER BY CreatedDate DESC, Name ASC
+//  LIMIT 5 OFFSET 10&quot;
+//
+const contacts = await conn.sobject(&quot;Contact&quot;)
+  .find(
+    // conditions in JSON object
+    { LastName : { $like : &#39;A%&#39; },
+      CreatedDate: { $gte : jsforce.Date.YESTERDAY },
+      &#39;Account.Name&#39; : &#39;Sony, Inc.&#39; },
+    // fields in JSON object
+    { Id: 1,
+      Name: 1,
+      CreatedDate: 1 }
+  )
+  .sort({ CreatedDate: -1, Name : 1 })
+  .limit(5)
+  .skip(10)
+  .execute((err, records) =&gt; {
+    if (err) { return console.error(err); }
+    console.log(&quot;fetched : &quot; + records.length);
+  });
+
+console.log(contacts)
+</code></pre>
+<p>Another representation of the query above.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const contacts = await conn.sobject(&quot;Contact&quot;)
+  .find({
+    LastName : { $like : &#39;A%&#39; },
+    CreatedDate: { $gte : jsforce.Date.YESTERDAY },
+    &#39;Account.Name&#39; : &#39;Sony, Inc.&#39;
+  },
+    &#39;Id, Name, CreatedDate&#39; // fields can be string of comma-separated field names
+                            // or array of field names (e.g. [ &#39;Id&#39;, &#39;Name&#39;, &#39;CreatedDate&#39; ])
+  )
+  .sort(&#39;-CreatedDate Name&#39;) // if &quot;-&quot; is prefixed to field name, considered as descending.
+  .limit(5)
+  .skip(10)
+  .execute((err, records) =&gt; {
+    if (err) { return console.error(err); }
+    console.log(&quot;record length = &quot; + records.length);
+    for (const i=0; i &lt; records.length; i++) {
+      const record = records[i];
+      console.log(`Name: ${record.Name}`);
+      console.log(`Created Date: ${record.CreatedDate}`);
+    }
+  });
+
+console.log(contacts)
+</code></pre>
+<h4 id="wildcard-fields">Wildcard Fields</h4>
+<p>When the <code>fields</code> argument is omitted in <code>SObject.find(conditions, fields)</code> call, it will implicitly describe the current SObject fields before the query (lookup cached result first, if available) and then fetch all fields defined in the SObject.</p>
+<p><b>NOTE</b>: In the version less than 0.6, it fetches only <code>Id</code> field if <code>fields</code> argument is omitted.</p>
+<pre><code class="lang-javascript">/* @interactive */
+await conn.sobject(&quot;Contact&quot;)
+  .find({ CreatedDate: jsforce.Date.TODAY }) // &quot;fields&quot; argument is omitted
+  .execute((err, records) =&gt; {
+    if (err) { return console.error(err); }
+    console.log(records);
+  });
+</code></pre>
+<p>The above query is equivalent to:</p>
+<pre><code class="lang-javascript">/* @interactive */
+await conn.sobject(&quot;Contact&quot;)
+  .find({ CreatedDate: jsforce.Date.TODAY }, &#39;*&#39;) // fields in asterisk, means wildcard.
+  .execute((err, records) =&gt; {
+    if (err) { return console.error(err); }
+    console.log(records);
+  });
+</code></pre>
+<p>Queries can also be represented in more SQL-like verbs - <code>SObject.select(fields)</code>, <code>Query.where(conditions)</code>, <code>Query.orderby(sort, dir)</code>, and <code>Query.offset(num)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+await conn.sobject(&quot;Contact&quot;)
+  .select(&#39;*, Account.*&#39;) // asterisk means all fields in specified level are targeted.
+  .where(&quot;CreatedDate = TODAY&quot;) // conditions in raw SOQL where clause.
+  .limit(10)
+  .offset(20) // synonym of &quot;skip&quot;
+  .execute((err, records) =&gt; {
+    for (const i=0; i&lt;records.length; i++) {
+      const record = records[i];
+      console.log(`First Name: ${record.FirstName}`);
+      console.log(`Last Name: ${record.LastName}`);
+      // fields in Account relationship are fetched
+      console.log(`Account Name: ${record.Account.Name}`); 
+    }
+  });
+</code></pre>
+<p>You can also include child relationship records into query result by calling <code>Query.include(childRelName)</code>. After calling <code>Query.include(childRelName)</code>, it enters into the context of child query. In child query context, query construction call is applied to the child query. Use <code>SubQuery.end()</code> to recover from the child context.</p>
+<pre><code class="lang-javascript">/* @interactive */
+//
+// Following query is equivalent to this SOQL
+//
+// &quot;SELECT Id, FirstName, LastName, ..., 
+//         Account.Id, Acount.Name, ...,
+//         (SELECT Id, Subject, … FROM Cases
+//          WHERE Status = &#39;New&#39; AND OwnerId = :conn.userInfo.id
+//          ORDER BY CreatedDate DESC)
+//  FROM Contact
+//  WHERE CreatedDate = TODAY
+//  LIMIT 10 OFFSET 20&quot;
+//
+await conn.sobject(&quot;Contact&quot;)
+  .select(&#39;*, Account.*&#39;)
+  .include(&quot;Cases&quot;) // include child relationship records in query result. 
+     // after include() call, entering into the context of child query.
+     .select(&quot;*&quot;)
+     .where({
+        Status: &#39;New&#39;,
+        OwnerId : conn.userInfo.id,
+     })
+     .orderby(&quot;CreatedDate&quot;, &quot;DESC&quot;)
+     .end() // be sure to call end() to exit child query context
+  .where(&quot;CreatedDate = TODAY&quot;)
+  .limit(10)
+  .offset(20)
+  .execute((err, records) =&gt; {
+    if (err) { return console.error(err); }
+    console.log(`records length = ${records.length}`);
+    for (const i=0; i &lt; records.length; i++) {
+      const record = records[i];
+      console.log(`First Name: ${record.FirstName}`);
+      console.log(`Last Name: ${record.LastName}`);
+      // fields in Account relationship are fetched
+      console.log(`Account Name: ${record.Account.Name}`); 
+      // 
+      if (record.Cases) {
+        console.log(`Cases total: ${record.Cases.totalSize}`);
+        console.log(`Cases fetched: ${record.Cases.records.length}`);
+      }
+    }
+  });
+</code></pre>
+
+
+<h2 id="search">Search</h2>
+<p><code>Connection.search</code> allows you to search records with SOSL in multiple objects.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.search(&quot;FIND {Un*} IN ALL FIELDS RETURNING Account(Id, Name), Lead(Id, Name)&quot;);
+console.log(res.searchRecords)
+);
+</code></pre>
+
+
+<h2 id="crud">CRUD</h2>
+<p>JSforce supports basic &quot;CRUD&quot; operation for records in Salesforce.
+It also supports multiple record manipulation in one API call.</p>
+<h3 id="retrieve">Retrieve</h3>
+<p><code>SObject.retrieve(id)</code> fetches a record or records specified by id(s) in first argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Single record retrieval
+const account = await conn.sobject(&#39;Account&#39;).retrieve(&#39;0010500000fxR4EAAU&#39;)
+console.log(`Name: ${account.Name}`)
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple record retrieval
+const accounts = await conn.sobject(&#39;Account&#39;).retrieve([
+  &#39;0010500000fxR4EAAU&#39;,
+  &#39;0010500000fxR3nAAE&#39;,
+])
+
+for (const acc of accounts) {
+  console.log(`Name: ${acc.Name}`)
+}
+</code></pre>
+<h3 id="create">Create</h3>
+<p><code>SObject.create(record)</code> (or its synonym <code>SObject.insert(record)</code>) creates a record or records given in first argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Single record creation
+const ret = await conn.sobject(&quot;Account&quot;).create({ Name : &#39;My Account #1&#39; });
+console.log(`Created record id : ${ret.id}`);
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple records creation
+const rets = await conn.sobject(&quot;Account&quot;).create([
+  { Name : &#39;My Account #2&#39; },
+  { Name : &#39;My Account #3&#39; },
+]);
+
+for (const ret of rets) {
+  console.log(`Created record id : ${ret.id}`);
+}
+</code></pre>
+<h3 id="update">Update</h3>
+<p><code>SObject.update(record)</code> updates a record or records given in first argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Single record update
+const ret = await conn.sobject(&quot;Account&quot;).update({
+  Id: &#39;0010500000fxbcuAAA&#39;,
+  Name : &#39;Updated Account #1&#39;
+})
+
+if (ret.success) {
+  console.log(`Updated Successfully : ${ret.id}`);
+}
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple records update
+const rets = await conn.sobject(&quot;Account&quot;).update([
+  { Id: &#39;0010500000fxbcuAAA&#39;, Name : &#39;Updated Account #1&#39; },
+  { Id: &#39;0010500000fxbcvAAA&#39;, Name : &#39;Updated Account #2&#39; },
+])
+
+for (const ret of rets) {
+  if (ret.success) {
+    console.log(`Updated Successfully : ${ret.id}`);
+  }
+}
+</code></pre>
+<h3 id="delete">Delete</h3>
+<p><code>SObject.destroy(id)</code> (or its synonym <code>SObject.del(id)</code>, <code>SObject.delete(id)</code>) deletes a record or records given in first argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Single record deletion
+const ret = await conn.sobject(&quot;Account&quot;).delete(&#39;0010500000fxbcuAAA&#39;)
+
+if (ret.success) {
+  console.log(`Deleted Successfully : ${ret.id}`);
+}
+</code></pre>
+<p>If you are deleting multiple records in one call, you can pass an option in second argument, which includes <code>allOrNone</code> flag.
+When the <code>allOrNone</code> is set to true (default: <code>false</code>), the call will raise error when any of the record fails to be deleted and all modifications are rolled back.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple records deletion
+const rets = await conn.sobject(&quot;Account&quot;).delete([
+  &#39;0010500000fxR1EAAU&#39;,
+  &#39;0010500000fxR1FAAU&#39;
+])
+
+for (const ret of rets) {
+  if (ret.success) {
+    console.log(`Deleted Successfully : ${ret.id}`);
+  }
+}
+</code></pre>
+<h3 id="upsert">Upsert</h3>
+<p><code>SObject.upsert(record, extIdField)</code> will upsert a record or records given in first argument. External ID field name must be specified in second argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Single record upsert
+const ret = await conn.sobject(&quot;UpsertTable__c&quot;).upsert({ 
+  Name : &#39;Record #1&#39;,
+  ExtId__c : &#39;ID-0000001&#39;
+}, &#39;ExtId__c&#39;);
+
+if (ret.success) {
+  console.log(`Upserted Successfully : ${ret.id}`);
+}
+</code></pre>
+<p>Unlike other CRUD calls, upsert with <code>allOrNone</code> option will not revert successfull upserts in case one or more fails.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple record upsert
+const rets = await conn.sobject(&quot;UpsertTable__c&quot;).upsert([
+ { Name : &#39;Record #1&#39;, ExtId__c : &#39;ID-0000001&#39; },
+ { Name : &#39;Record #2&#39;, ExtId__c : &#39;ID-0000002&#39; }
+],
+&#39;ExtId__c&#39;,
+{ allOrNone: true });
+
+for (const ret of rets) {
+  if (ret.success) {
+    console.log(&quot;Upserted Successfully&quot;);
+  }
+};
+</code></pre>
+<h3 id="operation-for-multiple-records">Operation for Multiple Records</h3>
+<p>From ver 1.9, CRUD operation for multiple records uses <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm">SObject Collection API</a> introduced in API 42.0.</p>
+<p>If you are using JSforce versions prior to 1.8 or Salesforce API versions prior to 41.0,
+it will fall back to parallel execution of CRUD REST API call for each records,
+that is, it consumes one API request per record. Be careful for the API quota consumption.</p>
+<h3 id="operation-options">Operation Options</h3>
+<h4 id="all-or-none-option">All or None Option</h4>
+<p>If you are creating multiple records in one call, you can pass an option in second argument, which includes <code>allOrNone</code> flag.
+When the <code>allOrNone</code> is set to true, the call will raise error when any of the record includes failure,
+and all modifications are rolled back (Default is false).</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Multiple records update with allOrNone option set to true
+const rets = await conn.sobject(&quot;account&quot;).update([
+  { Id: &#39;0010500000fxR1IAAU&#39;, name : &#39;updated account #1&#39; },
+  { Id: &#39;0010500001fxR1IAAU&#39;, name : &#39;updated account #1&#39; },
+])
+
+for (const ret of rets) {
+  if (ret.errors.length &gt; 0) {
+    console.error(ret.errors) // record update error(s)
+  }
+  if (ret.success) {
+    console.log(`updated successfully : ${ret.id}`);
+  } 
+}
+</code></pre>
+<p>The <code>allOrNone</code> option is passed as a parameter to the SObject Collection API.
+If the API is not available (e.g. using API versions prior to 42.0),
+it raises an error but not treating the roll back of successful modifications.</p>
+<h4 id="recursive-option">Recursive Option</h4>
+<p>There is a limit of the SObject collection API - up to 200 records can be processed in one-time call.
+So if you want to process more than 200 records you may divide the request to process them.</p>
+<p>The multi-record CRUD has the feature to automatically divide the input and recursively call SObject Collection API
+until the given records are all processed.
+In order to enable this you have to pass the option <code>allowRecursive</code> to the CRUD calls.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Create 1000 accounts, more than SObject Collection limit (200)
+const accounts = [];
+for (let i=0; i&lt;1000; i++) {
+  accounts.push({ Name: &#39;Account #&#39; + (i+1) });
+}
+// Internally dividing records in chunks,
+// and recursively sending requests to SObject Collection API
+const rets = await conn.sobject(&#39;Account&#39;)
+  .create(
+    accounts,
+    { allowRecursive: true }
+  );
+console.log(&#39;processed: &#39; + rets.length);
+</code></pre>
+<h3 id="update-delete-queried-records">Update / Delete Queried Records</h3>
+<p>If you want to update/delete records in Salesforce that match a specific condition in bulk,
+<code>Query.update(mapping)</code> / <code>Query.destroy()</code> allows to use the Bulk/Bulk V2 API.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// DELETE FROM Account WHERE CreatedDate = TODAY
+
+// will use Bulk (V1) API if query returns more than the default bulk threshold (200)
+const rets = await conn.sobject(&#39;Account&#39;)
+  .find({ CreatedDate : jsforce.Date.TODAY })
+  .destroy();
+
+console.log(rets)
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = await conn.sobject(&#39;Account&#39;)
+  .find({ CreatedDate : jsforce.Date.TODAY })
+  .destroy({
+    allowBulk: true, // disable Bulk API, use SObject REST API
+    bulkThreshold: 100, // record threshold
+    bulkApiVersion: 2 // use Bulk V2 API (default: 1)
+    });
+
+console.log(rets)
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+// UPDATE Opportunity
+// SET CloseDate = &#39;2013-08-31&#39;
+// WHERE Account.Name = &#39;Salesforce.com&#39;
+const rets = await conn.sobject(&#39;Opportunity&#39;)
+    .find({ &#39;Account.Name&#39; : &#39;Salesforce.com&#39; })
+    .update({ CloseDate: &#39;2013-08-31&#39; });
+console.log(rets);
+</code></pre>
+<p>In <code>Query.update(mapping)</code>, you can include simple templating notation in mapping record.</p>
+<pre><code class="lang-javascript">/* @interactive */
+//
+// UPDATE Task
+// SET Description = CONCATENATE(Subject || &#39; &#39; || Status)
+// WHERE ActivityDate = TODAY
+//
+const rets = await conn.sobject(&#39;Task&#39;)
+  .find({ ActivityDate : jsforce.Date.TODAY })
+  .update({ Description: &#39;${Subject}  ${Status}&#39; });
+console.log(rets)
+</code></pre>
+<p>To achieve further complex mapping, <code>Query.update(mapping)</code> accepts a mapping function as an argument.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = await conn.sobject(&#39;Task&#39;)
+  .find({ ActivityDate : jsforce.Date.TODAY })
+  .update((rec) =&gt; {
+    return {
+      Description: rec.Subject + &#39; &#39; + rec.Status
+    }
+  });
+console.log(rets);
+</code></pre>
+<p>If you are creating a query object from SOQL by using <code>Connection.query(soql)</code>,
+the bulk delete/update operation cannot be achieved because no sobject type information is available initially.
+You can avoid this by passing the <code>sobjectType</code> argument to <code>Query.destroy(sobjectType)</code> or <code>Query.update(mapping, sobjectType)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = await conn.query(&quot;SELECT Id FROM Account WHERE CreatedDate = TODAY&quot;).destroy(&#39;Account&#39;);
+console.log(rets);
+</code></pre>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = await conn.query(&quot;SELECT Id FROM Task WHERE ActivityDate = TODAY&quot;).update({ Description: &#39;${Subject}  ${Status}&#39; }, &#39;Task&#39;);
+console.log(rets);
+</code></pre>
+<p>NOTE: You should be careful when using this feature not to break/lose existing data in Salesforce.
+Careful testing is recommended before applying the code to your production environment.</p>
+
+
+<h2 id="describe">Describe</h2>
+<p>Metadata description API for Salesforce object.</p>
+<h3 id="describe-sobject">Describe SObject</h3>
+<p>You can use <code>SObject.describe()</code> to fetch SObject metadata,</p>
+<pre><code class="lang-javascript">/* @interactive */
+const meta = await conn.sobject(&#39;Account&#39;).describe()
+console.log(`Label : ${meta.label}`);
+console.log(`Num of Fields : ${meta.fields.length}`);
+</code></pre>
+<p>or can use <code>Connection.describe(sobjectType)</code> (or its synonym <code>Connection.describeSObject(sobjectType)</code>) alternatively.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const meta = await conn.describe(&#39;Account&#39;)
+console.log(`Label : ${meta.label}`);
+console.log(`Num of Fields : ${meta.fields.length}`);
+</code></pre>
+<h3 id="describe-global">Describe Global</h3>
+<p><code>SObject.describeGlobal()</code> returns all SObject information registered in Salesforce (without detail information like fields, childRelationships).</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.describeGlobal()
+console.log(`Num of SObjects : ${res.sobjects.length}`);
+</code></pre>
+<h3 id="cached-call">Cached Call</h3>
+<p>Each description API has &quot;cached&quot; version with suffix of <code>$</code> (coming from similar pronounce &quot;cash&quot;), which keeps the API call result for later use.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// First lookup local cache, and then call remote API if cache doesn&#39;t exist.
+const meta = await conn.sobject(&#39;Account&#39;).describe$()
+console.log(`Label : ${meta.label}`);
+console.log(`Num of Fields : ${meta.fields.length}`);
+</code></pre>
+<p>Cache clearance should be done explicitly by developers.</p>
+<pre><code class="lang-javascript">// Delete cache of global sobject description
+conn.describeGlobal$.clear();
+</code></pre>
+<pre><code class="lang-javascript">// Delete all API caches in connection.
+conn.cache.clear();
+</code></pre>
+
+
+<h2 id="identity">Identity</h2>
+<p><code>Connection.identity()</code> is available to get current API session user identity information.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.identity()
+console.log(`user ID: ${res.user_id}`);
+console.log(`organization ID: ${res.organization_id}`);
+console.log(`username: ${res.username}`);
+console.log(`display name: ${res.display_name}`);
+</code></pre>
+
+
+<h2 id="history">History</h2>
+<h3 id="recently-accessed-records">Recently Accessed Records</h3>
+<p><code>SObject.recent()</code> returns recently accessed records in the SObject.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.sobject(&#39;Account&#39;).recent()
+console.log(res)
+</code></pre>
+<p><code>Connection.recent()</code> returns records in all object types which were recently accessed.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.recent()
+console.log(res)
+</code></pre>
+<h3 id="recently-updated-records">Recently Updated Records</h3>
+<p><code>SObject.updated(startDate, endDate)</code> returns record IDs which are recently updated.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.sobject(&#39;Account&#39;).updated(&#39;2014-02-01&#39;, &#39;2014-02-15&#39;);
+console.log(`Latest date covered: ${res.latestDateCovered}`);
+console.log(`Updated records : ${res.ids.length}`);
+</code></pre>
+<h3 id="recently-deleted-records">Recently Deleted Records</h3>
+<p><code>SObject.deleted(startDate, endDate)</code> returns record IDs which were recently deleted.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.sobject(&#39;Account&#39;).deleted(&#39;2014-02-01&#39;, &#39;2014-02-15&#39;);
+console.log(`Ealiest date available: ${res.earliestDateAvailable}`);
+console.log(`Latest date covered: ${res.latestDateCovered}`);
+console.log(`Deleted records : ${res.deletedRecords.length}`);
+</code></pre>
+
+
+<h2 id="api-limit-and-usage">API Limit and Usage</h2>
+<p><code>Connection.limitInfo</code> stores the latest API usage information.</p>
+<pre><code class="lang-javascript">/* @interactive */
+console.log(`API Limit: ${conn.limitInfo.apiUsage.limit}`);
+console.log(`API Used: ${conn.limitInfo.apiUsage.used}`);
+</code></pre>
+<p>Note that the limit information is available only after at least <em>one</em> REST API call, as it is included in response headers of API requests.</p>
+
+
+<h2 id="analytics-api">Analytics API</h2>
+<p>By using Analytics API, you can get the output result from a report registered in Salesforce.</p>
+<h3 id="get-recently-used-reports">Get Recently Used Reports</h3>
+<p><code>Analytics.reports()</code> lists recently accessed reports.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// get recent reports
+const res = await conn.analytics.reports()
+
+for (const report of res) {
+  console.log(report.id)
+  console.log(report.name)
+}
+</code></pre>
+<h3 id="describe-report-metadata">Describe Report Metadata</h3>
+<p><code>Analytics.report(reportId)</code> gives a reference to the report object specified in <code>reportId</code>.
+By calling <code>Analytics-Report.describe()</code>, you can get the report metadata defined in Salesforce without executing the report.</p>
+<p>You should check <a href="http://www.salesforce.com/us/developer/docs/api_analytics/index.htm">Analytics REST API Guide</a> to understand the structure of returned report metadata.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const meta = await conn.analytics.report(&#39;00O05000000jmaWEAQ&#39;).describe()
+
+console.log(meta.reportMetadata);
+console.log(meta.reportTypeMetadata);
+console.log(meta.reportExtendedMetadata);
+</code></pre>
+<h3 id="execute-report">Execute Report</h3>
+<h4 id="execute-synchronously">Execute Synchronously</h4>
+<p>By calling <code>Analytics-Report.execute(options)</code>, the report is exected in Salesforce, and returns executed result synchronously.
+Please refer to Analytics API document about the format of retruning result.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// get report reference
+const report = conn.analytics.report(&#39;00O05000000jmaWEAQ&#39;)
+
+// execute report
+const result = await report.execute()
+console.log(result.reportMetadata);
+console.log(result.factMap);
+console.log(result.factMap[&quot;T!T&quot;]);
+console.log(result.factMap[&quot;T!T&quot;].aggregates);
+</code></pre>
+<h4 id="include-detail-rows-in-execution">Include Detail Rows in Execution</h4>
+<p>You can set  <code>details</code> to true in <code>options</code> to make it return the execution result with detail rows.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// execute report synchronously with details option,
+// to get detail rows in execution result.
+const report = conn.analytics.report(&#39;00O05000000jmaWEAQ&#39;)
+const result = await report.execute({ details: true })
+console.log(result.reportMetadata);
+console.log(result.factMap);
+console.log(result.factMap[&quot;T!T&quot;]);
+console.log(result.factMap[&quot;T!T&quot;].aggregates);
+console.log(result.factMap[&quot;T!T&quot;].rows); // &lt;= detail rows in array
+</code></pre>
+<h4 id="override-report-metadata-in-execution">Override Report Metadata in Execution</h4>
+<p>You can override report behavior by putting <code>metadata</code> object in <code>options</code>.
+For example, following code shows how to update filtering conditions of a report on demand.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// overriding report metadata
+const metadata = { 
+  reportMetadata : {
+    reportFilters : [{
+      column: &#39;COMPANY&#39;,
+      operator: &#39;contains&#39;,
+      value: &#39;,Inc.&#39;
+    }]
+  }
+};
+// execute report synchronously with overridden filters.
+const reportId = &#39;00O10000000pUw2EAE&#39;;
+const report = conn.analytics.report(reportId);
+const result = await report.execute({ metadata : metadata });
+console.log(result.reportMetadata);
+console.log(result.reportMetadata.reportFilters.length); // &lt;= 1
+console.log(result.reportMetadata.reportFilters[0].column); // &lt;= &#39;COMPANY&#39; 
+console.log(result.reportMetadata.reportFilters[0].operator); // &lt;= &#39;contains&#39; 
+console.log(result.reportMetadata.reportFilters[0].value); // &lt;= &#39;,Inc.&#39;
+</code></pre>
+<h4 id="execute-asynchronously">Execute Asynchronously</h4>
+<p><code>Analytics-Report.executeAsync(options)</code> executes the report asynchronously in Salesforce,
+registering an instance to the report to lookup the executed result in future.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const instanceId;
+
+// execute report asynchronously
+const reportId = &#39;00O10000000pUw2EAE&#39;;
+const report = conn.analytics.report(reportId);
+
+const instance = await report.executeAsync({ details: true })
+console.log(instance.id); // &lt;= registered report instance id
+instanceId = instance.id;
+</code></pre>
+<p>Afterward use <code>Analytics-Report.instance(instanceId)</code>
+and call <code>Analytics-ReportInstance.retrieve()</code> to get the executed result.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// retrieve asynchronously executed result afterward.
+const result = await report.instance(instanceId).retrieve()
+console.log(result.reportMetadata);
+console.log(result.factMap);
+console.log(result.factMap[&quot;T!T&quot;]);
+console.log(result.factMap[&quot;T!T&quot;].aggregates);
+console.log(result.factMap[&quot;T!T&quot;].rows);
+</code></pre>
+
+
+<h2 id="apex-rest">Apex REST</h2>
+<p>If you have a static Apex class in Salesforce and are exposing it using &quot;Apex REST&quot; feature,
+you can call it by using <code>Apex.get(path)</code>, <code>Apex.post(path, body)</code>, <code>Apex.put(path, body)</code>,
+<code>Apex.patch(path, body)</code>, and <code>Apex.del(path, body)</code> (or its synonym <code>Apex.delete(path, body)</code>)
+through the <code>apex</code> API object.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// body payload structure is depending to the Apex REST method interface.
+const body = { title: &#39;hello&#39;, num : 1 };
+const res = await conn.apex.post(&quot;/MyTestApexRest/&quot;, body);
+console.log(&quot;response: &quot;, res);
+</code></pre>
+
+
+<h2 id="bulk-api">Bulk API</h2>
+<p>JSforce package also supports Bulk API. It is not only mapping each Bulk API endpoint in low level,
+but also introducing utility interface in bulk load operations.</p>
+<h3 id="load-from-records">Load From Records</h3>
+<p>First, assume that you have record set in array object to insert into Salesforce.</p>
+<pre><code class="lang-javascript">//
+// Records to insert in bulk.
+//
+const accounts = [
+{ Name : &#39;Account #1&#39;, ... },
+{ Name : &#39;Account #2&#39;, ... },
+{ Name : &#39;Account #3&#39;, ... },
+...
+];
+</code></pre>
+<p>You could use <code>SObject.create(record)</code>, but it consumes API quota per record,
+so it&#39;s not practical for large set of records. We can use the Bulk API to load them.</p>
+<p>Similar to the Bulk API, first create a bulk job by calling <code>Bulk.createJob(sobjectType, operation)</code>
+through <code>bulk</code> API object in connection object.</p>
+<p>Next, create a new batch in the job, by calling <code>job.createBatch()</code> through the job object created previously.</p>
+<pre><code class="lang-javascript">const job = conn.bulk.createJob(&quot;Account&quot;, &quot;insert&quot;);
+const batch = job.createBatch();
+</code></pre>
+<p>Then bulk load the records by calling <code>batch.execute(input)</code> of created batch object, passing the records in <code>input</code> argument.</p>
+<p>When the batch is queued in Salesforce, it is notified by emitting the <code>queue</code> event, and you can get job ID and batch ID.</p>
+<pre><code class="lang-javascript">batch.execute(accounts);
+batch.on(&quot;queue&quot;, (batchInfo) =&gt; { // fired when batch request is queued in server.
+  console.log(&#39;batchInfo:&#39;, batchInfo);
+  batchId = batchInfo.id;
+  jobId = batchInfo.jobId;
+  // ...
+});
+</code></pre>
+<p>After the batch is queued and job / batch ID is created, wait the batch completion by polling.</p>
+<p>When the batch process in Salesforce has been completed, it is notified by <code>response</code> event with batch result information.</p>
+<pre><code class="lang-javascript">const job = conn.bulk.job(jobId);
+const batch = job.batch(batchId);
+batch.poll(1000 /* interval(ms) */, 20000 /* timeout(ms) */); // start polling
+batch.on(&quot;response&quot;, (rets) =&gt; { // fired when batch is finished and result retrieved
+  for (let i=0; i &lt; rets.length; i++) {
+    if (rets[i].success) {
+      console.log(`#${i + 1} loaded successfully, id = ${rets[i].id}`);
+    } else {
+      console.log(`#${i + 1} error occurred, message = ${rets[i].errors.join(&#39;, &#39;)}`);
+    }
+  }
+  // ...
+});
+</code></pre>
+<p>Below is an example of the full bulk loading flow from scratch.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Provide records
+const accounts = [
+  { Name : &#39;Account #4&#39; },
+  { Name : &#39;Account #6&#39; },
+  { Name : &#39;Account #7&#39; },
+];
+// Create job and batch
+const job = conn.bulk.createJob(&quot;Account&quot;, &quot;insert&quot;);
+const batch = job.createBatch();
+// start job
+batch.execute(accounts);
+// listen for events
+batch.on(&quot;error&quot;, function(batchInfo) { // fired when batch request is queued in server.
+  console.log(&#39;Error, batchInfo:&#39;, batchInfo);
+});
+batch.on(&quot;queue&quot;, function(batchInfo) { // fired when batch request is queued in server.
+  console.log(&#39;queue, batchInfo:&#39;, batchInfo);
+  batch.poll(1000 /* interval(ms) */, 20000 /* timeout(ms) */); // start polling - Do not poll until the batch has started
+});
+batch.on(&quot;response&quot;, (rets) =&gt; { // fired when batch finished and result retrieved
+  for (let i=0; i &lt; rets.length; i++) {
+    if (rets[i].success) {
+      console.log(`#${i + 1} loaded successfully, id = ${rets[i].id}`);
+    } else {
+      console.log(`#${i + 1} error occurred, message = ${rets[i].errors.join(&#39;, &#39;)}`);
+    }
+  }
+  // ...
+});
+</code></pre>
+<p>Alternatively, you can use <code>Bulk.load(sobjectType, operation, input)</code> interface to achieve the above process in one method call.</p>
+<p>NOTE: In some cases for large data sets, a polling timeout can occur. When loading large data sets, consider changing <code>Bulk.pollTimeout</code> and <code>Bulk.pollInterval</code> property value, or using the one of the calls above with the built in <code>batch.poll()</code> or polling manually.</p>
+<pre><code class="lang-javascript">conn.bulk.pollTimeout = 25000; // Bulk timeout can be specified globally on the connection object
+const rets = await conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;, accounts);
+for (let i=0; i &lt; rets.length; i++) {
+  if (rets[i].success) {
+    console.log(`#${i + 1} loaded successfully, id = ${rets[i].id}`);
+  } else {
+    console.log(`#${i + 1} error occurred, message = ${rets[i].errors.join(&#39;, &#39;)}`);
+  }
+}
+</code></pre>
+<p>Following are same calls but in different interfaces:</p>
+<pre><code class="lang-javascript">const res = await conn.sobject(&quot;Account&quot;).insertBulk(accounts);
+console.log(res)
+</code></pre>
+<pre><code class="lang-javascript">const res = await conn.sobject(&quot;Account&quot;).bulkload(&quot;insert&quot;, accounts)
+console.log(res)
+</code></pre>
+<p>To check the status of a batch job without using the built in polling methods, you can use <code>Bulk.check()</code>.</p>
+<pre><code class="lang-javascript">const results = await conn.bulk.job(jobId).batch(batchId).check()
+console.log(&#39;results&#39;, results);
+</code></pre>
+<h3 id="load-from-csv-file">Load From CSV File</h3>
+<p>It also supports bulk loading from CSV file. Just use CSV file input stream as <code>input</code> argument
+in <code>Bulk.load(sobjectType, operation, input)</code>, instead of passing records in array.</p>
+<pre><code class="lang-javascript">//
+// Create readable stream for CSV file to upload
+//
+const csvFileIn = require(&#39;fs&#39;).createReadStream(&quot;path/to/Account.csv&quot;);
+//
+// Call Bulk.load(sobjectType, operation, input) - use CSV file stream as &quot;input&quot; argument
+//
+const rets = await conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;, csvFileIn);
+for (let i=0; i &lt; rets.length; i++) {
+  if (rets[i].success) {
+    console.log(`#${i + 1} loaded successfully, id = ${rets[i].id}`);
+  } else {
+    console.log(`#${i + 1} error occurred, message = ${rets[i].errors.join(&#39;, &#39;)}`);
+  }
+}
+</code></pre>
+<p>Alternatively, if you have a CSV string instead of an actual file, but would still like to use the CSV data type, here is an example for node.js.</p>
+<pre><code class="lang-javascript">const s = new stream.Readable();
+s.push(fileStr);
+s.push(null);
+
+const job = conn.bulk.createJob(sobject, operation, options);
+const batch = job.createBatch();
+batch
+.execute(s)
+.on(&quot;queue&quot;, (batchInfo) =&gt; {
+  console.log(&#39;Apex job queued&#39;);
+  // Since we useed .execute(), we need to poll until completion using batch.poll() or manually using batch.check()
+  // See the previous examples for reference
+})
+.on(&quot;error&quot;, (err) =&gt; {
+  console.log(&#39;Apex job error&#39;);
+});
+</code></pre>
+<p><code>Bulk-Batch.stream()</code> returns a Node.js standard writable stream which accepts batch input.
+You can pipe input stream to it afterward.</p>
+<pre><code class="lang-javascript">const batch = await conn.bulk.load(&quot;Account&quot;, &quot;insert&quot;);
+batch.on(&quot;response&quot;, (rets) =&gt; { // fired when batch finished and result retrieved
+  for (const i=0; i &lt; rets.length; i++) {
+    if (rets[i].success) {
+      console.log(`#${i + 1} loaded successfully, id = ${rets[i].id}`);
+    } else {
+      console.log(`#${i + 1} error occurred, message = ${rets[i].errors.join(&#39;, &#39;)}`);
+    }
+  }
+);
+//
+// When input stream becomes available, pipe it to batch stream.
+//
+csvFileIn.pipe(batch.stream());
+</code></pre>
+<h3 id="query-and-update-destroy-using-bulk-api">Query-and-Update/Destroy using Bulk API</h3>
+<p>When performing <a href="#update-delete-queried-records">update/delete queried records</a>,
+JSforce hybridly uses <a href="#operation-for-multiple-records">CRUD Operation for Multiple-Records</a> and Bulk API.</p>
+<p>It uses SObject Collection API for small amount of records, and when the queried result exceeds an threshold, switches to Bulk API.
+These behavior can be modified by passing options like <code>allowBulk</code> or <code>bulkThreshold</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = await conn.sobject(&#39;Account&#39;)
+  .find({ CreatedDate: jsforce.Date.TODAY })
+  .destroy({
+    allowBulk: true, // allow using bulk API
+    bulkThreshold: 200, // when the num of queried records exceeds this threshold, switch to Bulk API
+  });
+
+for (const ret of rets) {
+  console.log(`id: ${ret.id}, success: ${ret.success}`);
+}
+</code></pre>
+<h3 id="bulk-query">Bulk Query</h3>
+<p>From ver. 1.3, additional functionality was added to the bulk query API. It fetches records in bulk in record stream, or CSV stream which can be piped out to a CSV file.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const recordStream = await conn.bulk2.query(&#39;SELECT Id, Name, NumberOfEmployees FROM Account&#39;)
+
+recordStream.on(&#39;record&#39;, (data) =&gt; {
+  console.log(record.Id);
+});
+
+recordStream.on(&#39;error&#39;, (err) =&gt; {
+  throw err;
+});
+</code></pre>
+<pre><code class="lang-javascript">const fs = require(&#39;fs&#39;);
+
+const recordStream = await conn.bulk.query(&#39;SELECT Id, Name, NumberOfEmployees FROM Account&#39;)
+recordStream.stream().pipe(fs.createWriteStream(&#39;./accounts.csv&#39;));
+</code></pre>
+<p>If you already know the job id and batch id for the bulk query, you can get the batch result ids by calling <code>Batch.retrieve()</code>. Retrieval for each result is done by <code>Batch.result(resultId)</code></p>
+<pre><code class="lang-javascript">const fs = require(&#39;fs&#39;);
+const batch = conn.bulk.job(jobId).batch(batchId);
+batch.retrieve((err, results) =&gt; {
+  if (err) { return console.error(err); }
+  for (let i=0; i &lt; results.length; i++) {
+    var resultId = result[i].id;
+    batch.result(resultId).stream().pipe(fs.createWriteStream(&#39;./result&#39;+i+&#39;.csv&#39;));
+  }
+});
+</code></pre>
+
+
+<h2 id="bulk-v2-api">Bulk V2 API</h2>
+<p>The <code>bulk2</code> module provides some helpers to work with data using the Bulk V2 API.</p>
+<h3 id="upload-records">Upload records</h3>
+<p>First, assume we have an array of records to insert into Salesforce.</p>
+<pre><code class="lang-javascript">//
+// Records to insert in bulk.
+//
+const accounts = [
+  { Name : &#39;Account #1&#39; },
+  { Name : &#39;Account #2&#39; },
+  { Name : &#39;Account #3&#39; },
+];
+</code></pre>
+<p>Now let&#39;s create an object represeting a Bulk V2 ingest job by calling the <code>BulkV2.createJob()</code> method on the <code>connection.bulk2</code> object,
+then call <code>job.open()</code> to start the job in your org:</p>
+<pre><code class="lang-javascript">const job = conn.bulk2.createJob({
+  operation: &quot;insert&quot;,
+  object: &quot;Account&quot;,
+})
+
+// the `open` event will be emitted when the job is created.
+job.on(&#39;open&#39;, (job) =&gt; {
+  console.log(`Job ${job.id} succesfully created.`)
+})
+
+await job.open()
+</code></pre>
+<p>Now upload the records for the job and then close it so the data starts being processed.</p>
+<pre><code class="lang-javascript">// it accepts CSV as a string, an array of records or a Node.js readable stream.
+await job.uploadData(accounts)
+
+
+// uploading data from a CSV as a readable stream:
+
+// const csvStream = fs.createReadStream(
+//   path.join(&#39;Account_bulk2_test.csv&#39;),
+// );
+// await job.uploadData(csvStream)
+
+await job.close()
+</code></pre>
+<p><b>NOTE</b>:
+Bulk V2 jobs expect the data to be uploaded all at once, if you call <code>job.uploadData()</code> more than once it will fail.</p>
+<p>Once the job is closed you can start polling for its status until it finished successfully:</p>
+<pre><code class="lang-javascript">// by default will poll every 1s and timeout after 30s.
+await job.poll()
+
+// you can specify different values (in miliseconds):
+// const pollInterval = 30000 
+// const pollTimeout = 300000
+//
+// poll for the job status every 30s and timeout after 5min
+// await job.poll(pollInterval, pollTimeout)
+</code></pre>
+<p>You can also listen to the <code>inProgress</code> event to get updates on each poll:</p>
+<pre><code class="lang-javascript">job.on(&#39;inProgress&#39;, (jobInfo: JobInfoV2) =&gt; {
+  console.log(jobInfo.numberRecordsProcessed) // Number of records already processed
+  console.log(jobInfo.numberRecordsFailed)    // Number of records that failed to be processed
+});
+
+await job.poll()
+</code></pre>
+<p>Once the job finishes successfully you can get all the records:</p>
+<pre><code class="lang-javascript">const res = await job.getAllResults()
+
+ for (const rec of res.successfulResults) {
+   console.log(`id = ${rec.sf__Id}, loaded successfully`)
+ }
+ for (const rec of res.failedResults) {
+   console.log(`id = ${rec.sf__Id}, failed to load due to: ${rec.sf__Error}`)
+ }
+ for (const rec of res.unprocessedRecords) {
+   if (typeof rec === &#39;string&#39;) {
+     console.log(`Bad record: ${rec}`)
+   } else {
+     console.log(`unprocessed record: ${rec}`)
+   }
+ }
+</code></pre>
+<p>Alternatively, you can use the <code>BulkV2.loadAndWaitForResults</code> method which takes your data and handles job creation/polling/getting results for you:</p>
+<pre><code class="lang-javascript">const {
+  successfulResults,
+  failedResults,
+  unprocessedRecords,
+} = await conn.bulk2.loadAndWaitForResults({
+  object: &#39;Account&#39;,
+  operation: &#39;insert&#39;,
+  input: records,
+  pollTimeout: 60000,
+  pollInterval: 5000
+});
+</code></pre>
+<h3 id="bulk-v2-query">Bulk V2 Query</h3>
+<p>The <code>bulk2.query</code> method takes a SOQL query and returns a record stream you can use to collect the emitted records.
+A streaming API allows to work with tons of records without running into memory limits.</p>
+<pre><code class="lang-javascript">const recordStream = await conn.bulk2.query(&#39;SELECT Name from Account&#39;)
+
+recordStream.on(&#39;record&#39;, (data) =&gt; {
+  console.log(record.Id);
+});
+
+recordStream.on(&#39;error&#39;, (err) =&gt; {
+  throw err;
+});
+
+// Or if you need an array of all the records:
+const records = await (await bulk2.query(&#39;SELECT Name from Account&#39;)).toArray()
+</code></pre>
+<pre><code class="lang-javascript">// stream records to a csv file 
+const fs = require(&#39;node:fs&#39;);
+
+const recordStream = await conn.bulk2.query(&#39;SELECT Name from Account&#39;)
+recordStream.stream().pipe(fs.createWriteStream(&#39;./accounts.csv&#39;));
+</code></pre>
+<h3 id="query-and-update-destroy-using-bulk-v2-api">Query-and-Update/Destroy using Bulk V2 API</h3>
+<p>When performing <a href="#update-delete-queried-records">update/delete queried records</a>,
+JSforce hybridly uses <a href="#operation-for-multiple-records">CRUD Operation for Multiple-Records</a> and Bulk API.</p>
+<p>It uses SObject Collection API for small amount of records, and when the queried result exceeds an threshold, switches to Bulk API.
+This can be modified by passing options like <code>allowBulk</code>, <code>bulkThreshold</code> and <code>bulkApiVersion</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const rets = conn.sobject(&#39;Account&#39;)
+  .find({ CreatedDate: jsforce.Date.TODAY })
+  .destroy({
+    allowBulk: true, // allow using bulk API
+    bulkThreshold: 200, // when the num of queried records exceeds this threshold, switch to Bulk API
+    bulkApiVersion: 2 // use Bulk V2 API (default: 1)
+  });
+
+for (const ret of rets) {
+  console.log(&#39;id: &#39; + ret.id + &#39;, success: &#39; + ret.success);
+}
+</code></pre>
+
+
+<h2 id="chatter-api">Chatter API</h2>
+<p>Chatter API resources can be accessed via <code>Chatter#resource(path)</code>.
+The path for the resource can be a relative path from <code>/services/data/vX.X/chatter/</code>, <code>/services/data/</code>, or site-root relative path,
+otherwise absolute URI.</p>
+<p>Please check official <a href="http://www.salesforce.com/us/developer/docs/chatterapi/">Chatter REST API Guide</a> to understand resource paths for chatter objects.</p>
+<h3 id="get-resource-information">Get Resource Information</h3>
+<p>If you want to retrieve the information for specified resource, <code>Chatter-Resource#retrieve()</code> will get information of the resource.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.chatter.resource(&#39;/users/me&#39;)
+console.log(`username: ${res.username}`);
+console.log(`email: ${res.email}`);
+console.log(`small photo url: ${res.photo.smallPhotoUrl}`);
+</code></pre>
+<h3 id="get-collection-resource-information">Get Collection Resource Information</h3>
+<p>You can pass query parameters to collection resource, to filter result or specify offset/limit for result.
+All acceptable query parameters are written in Chatter REST API manual.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const result = await conn.chatter.resource(&#39;/users&#39;, { q: &#39;Suzuki&#39; }).retrieve();
+
+console.log(&quot;current page URL: &quot; + result.currentPageUrl);
+console.log(&quot;next page URL: &quot; + result.nextPageUrl);
+console.log(&quot;users count: &quot; + result.users.length);
+
+for (let i=0; i&lt;result.users.length; i++) {
+  const user = users[i];
+  console.log(&#39;User ID: &#39;+ user.id);
+  console.log(&#39;User URL: &#39;+ user.url);
+  console.log(&#39;Username: &#39;+ user.username);
+}
+</code></pre>
+<h3 id="post-a-feed-item">Post a Feed Item</h3>
+<p>To post a feed item or a comment, use <code>Chatter-Resource#create(data)</code> for collection resource.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const result = await conn.chatter.resource(&#39;/feed-elements&#39;).create({
+  body: {
+    messageSegments: [{
+      type: &#39;Text&#39;,
+      text: &#39;This is new post&#39;
+    }]
+  },
+  feedElementType : &#39;FeedItem&#39;,
+  subjectId: &#39;me&#39;
+})
+console.log(`Id: ${result.id}`);
+console.log(`URL: ${result.url}`);
+console.log(`Body: ${result.body.messageSegments[0].text}`);
+console.log(`Comments URL: ${result.capabilities.comments.page.currentPageUrl}`);
+</code></pre>
+<h3 id="post-a-comment">Post a Comment</h3>
+<p>You can add a comment by posting message to feed item&#39;s comments URL:</p>
+<pre><code class="lang-javascript">/* @interactive */
+const commentsUrl = &#39;/feed-elements/0D55000001j5qn8CAA/capabilities/comments/items&#39;;
+const result = await conn.chatter.resource(commentsUrl).create({
+  body: {
+    messageSegments: [{
+      type: &#39;Text&#39;,
+      text: &#39;This is new comment #1&#39;
+    }]
+  }
+});
+console.log(`Id: ${result.id}`);
+console.log(`URL: ${result.url}`);
+console.log(`Body: ${result.body.messageSegments[0].text}`);
+</code></pre>
+<h3 id="add-like">Add Like</h3>
+<p>You can add likes to feed items/comments by posting empty string to like URL:</p>
+<pre><code class="lang-javascript">/* @interactive */
+const itemLikesUrl = &#39;/feed-elements/0D55000001j5r2rCAA/capabilities/chatter-likes/items&#39;;
+const result = await conn.chatter.resource(itemLikesUrl).create(&quot;&quot;);
+
+console.log(`URL: ${result.url}`);
+console.log(`Liked Item ID:${result.likedItem.id}`);
+</code></pre>
+<h3 id="batch-operation">Batch Operation</h3>
+<p>Using <code>Chatter#batch(requests)</code>, you can execute multiple Chatter resource requests in one API call.
+Requests should be CRUD operations for Chatter API resource.</p>
+<pre><code class="lang-javascript">/* @interactive */
+
+const res = await conn.chatter.batch([
+  conn.chatter.resource(&#39;/feed-elements&#39;).create({
+    body: {
+      messageSegments: [{
+        type: &#39;Text&#39;,
+        text: &#39;This is a post text&#39;
+      }]
+    },
+    feedElementType: &#39;FeedItem&#39;,
+    subjectId: &#39;me&#39;
+  }),
+  conn.chatter.resource(&#39;/feed-elements&#39;).create({
+    body: {
+      messageSegments: [{
+        type: &#39;Text&#39;,
+        text: &#39;This is another post text, following to previous.&#39;
+      }]
+    },
+    feedElementType: &#39;FeedItem&#39;,
+    subjectId: &#39;me&#39;
+  }),
+  conn.chatter.resource(&#39;/feeds/news/me/feed-elements&#39;, { pageSize: 2, sort: &quot;CreatedDateDesc&quot; }),
+])
+console.log(`Error? ${res.hasErrors}`);
+const results = res.results;
+console.log(`batch request executed: ${results.length}`);
+console.log(`request #1 - status code: ${results[0].statusCode}`);
+console.log(`request #1 - result URL: ${results[0].result.url}`);
+console.log(`request #2 - status code: ${results[1].statusCode}`);
+console.log(`request #2 - result URL: ${results[1].result.url}`);
+console.log(`request #3 - status code: ${results[2].statusCode}`);
+console.log(`request #3 - current Page URL: ${results[2].result.currentPageUrl}`);
+</code></pre>
+
+
+<h2 id="metadata-api">Metadata API</h2>
+<h3 id="describe-metadata">Describe Metadata</h3>
+<p><code>Metadata.describe(version)</code> lists all metadata in an org.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const metadata = await conn.metadata.describe(&#39;60.0&#39;)
+console.log(`organizationNamespace: ${metadata.organizationNamespace}`);
+console.log(`partialSaveAllowed: ${metadata.partialSaveAllowed}`);
+console.log(`testRequired: ${metadata.testRequired}`);
+console.log(`metadataObjects count: ${metadata.metadataObjects.length}`);
+</code></pre>
+<h3 id="list-metadata">List Metadata</h3>
+<p><code>Metadata.list(types, version)</code> lists summary information for all metadata types.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const types = [{type: &#39;CustomObject&#39;, folder: null}];
+const metadata = await conn.metadata.list(types, &#39;60.0&#39;);
+const meta = metadata[0]
+
+console.log(`metadata count: ${metadata.length}`);
+console.log(`createdById: ${meta.createdById}`);
+console.log(`createdByName: ${meta.createdByName}`);
+console.log(`createdDate: ${meta.createdDate}`);
+console.log(`fileName: ${meta.fileName}`);
+console.log(`fullName: ${meta.fullName}`);
+console.log(`id: ${meta.id}`);
+console.log(`lastModifiedById: ${meta.lastModifiedById}`);
+console.log(`lastModifiedByName: ${meta.lastModifiedByName}`);
+console.log(`lastModifiedDate: ${meta.lastModifiedDate}`);
+console.log(`manageableState: ${meta.manageableState}`);
+console.log(`namespacePrefix: ${meta.namespacePrefix}`);
+console.log(`type: ${meta.type}`);
+</code></pre>
+<h3 id="read-metadata">Read Metadata</h3>
+<p><code>Metadata.read(type, fullNames)</code> retrieves metadata information of a specific types.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const fullNames = [ &#39;Account&#39;, &#39;Contact&#39; ];
+const metadata = await conn.metadata.read(&#39;CustomObject&#39;, fullNames);
+for (const meta of metadata) {
+  console.log(`Full Name: ${meta.fullName}`);
+  console.log(`Fields count: ${meta.fields.length}`);
+  console.log(`Sharing Model: ${meta.sharingModel}`);
+}
+</code></pre>
+<h3 id="create-metadata">Create Metadata</h3>
+<p>To create new metadata objects, use <code>Metadata.create(type, metadata)</code>.
+Metadata format for each metadata types are written in the Salesforce Metadata API document.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// creating metadata in array
+const metadata = [{
+  fullName: &#39;TestObject1__c&#39;,
+  label: &#39;Test Object 1&#39;,
+  pluralLabel: &#39;Test Object 1&#39;,
+  nameField: {
+    type: &#39;Text&#39;,
+    label: &#39;Test Object Name&#39;
+  },
+  deploymentStatus: &#39;Deployed&#39;,
+  sharingModel: &#39;ReadWrite&#39;
+}, {
+  fullName: &#39;TestObject2__c&#39;,
+  label: &#39;Test Object 2&#39;,
+  pluralLabel: &#39;Test Object 2&#39;,
+  nameField: {
+    type: &#39;AutoNumber&#39;,
+    label: &#39;Test Object #&#39;
+  },
+  deploymentStatus: &#39;InDevelopment&#39;,
+  sharingModel: &#39;Private&#39;
+}];
+const results = await conn.metadata.create(&#39;CustomObject&#39;, metadata);
+for (const res of results) {
+  console.log(`success ? : ${res.success}`);
+  console.log(`fullName : ${res.fullName}`);
+}
+</code></pre>
+<p>And then you can check creation statuses by <code>Metadata.checkStatus(asyncResultIds)</code>,
+and wait their completion by calling <code>Metadata-AsyncResultLocator.complete()</code> for returned object.</p>
+<pre><code class="lang-javascript">const results = await conn.metadata.checkStatus(asyncResultIds).complete()
+
+for (const i=0; i &lt; results.length; i++) {
+  const result = results[i];
+  console.log(&#39;id: &#39; + result.id);
+  console.log(&#39;done ? : &#39; + result.done);
+  console.log(&#39;state : &#39; + result.state);
+}
+</code></pre>
+<h3 id="update-metadata">Update Metadata</h3>
+<p><code>Metadata.update(type, updateMetadata)</code> can be used for updating existing metadata objects.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const metadata = [{
+  fullName: &#39;TestObject1__c.AutoNumberField__c&#39;,
+  label: &#39;Auto Number #2&#39;,
+  length: 50
+}]
+const results = await conn.metadata.update(&#39;CustomField&#39;, metadata);
+
+for (let i=0; i &lt; results.length; i++) {
+  const result = results[i];
+  console.log(&#39;success ? : &#39; + result.success);
+  console.log(&#39;fullName : &#39; + result.fullName);
+}
+</code></pre>
+<h3 id="upsert-metadata">Upsert Metadata</h3>
+<p><code>Metadata.upsert(type, metadata)</code> is used for upserting metadata - insert new metadata when it is not available, otherwise update it.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const metadata = [{
+  fullName: &#39;TestObject2__c&#39;,
+  label: &#39;Upserted Object 2&#39;,
+  pluralLabel: &#39;Upserted Object 2&#39;,
+  nameField: {
+    type: &#39;Text&#39;,
+    label: &#39;Test Object Name&#39;
+  },
+  deploymentStatus: &#39;Deployed&#39;,
+  sharingModel: &#39;ReadWrite&#39;
+}, {
+  fullName: &#39;TestObject__c&#39;,
+  label: &#39;Upserted Object 3&#39;,
+  pluralLabel: &#39;Upserted Object 3&#39;,
+  nameField: {
+    type: &#39;Text&#39;,
+    label: &#39;Test Object Name&#39;
+  },
+  deploymentStatus: &#39;Deployed&#39;,
+  sharingModel: &#39;ReadWrite&#39;
+}];
+const results = await conn.metadata.upsert(&#39;CustomObject&#39;, metadata);
+for (let i=0; i &lt; results.length; i++) {
+  const result = results[i];
+  console.log(&#39;success ? : &#39; + result.success);
+  console.log(&#39;created ? : &#39; + result.created);
+  console.log(&#39;fullName : &#39; + result.fullName);
+}
+</code></pre>
+<h3 id="rename-metadata">Rename Metadata</h3>
+<p><code>Metadata.rename(type, oldFullName, newFullName)</code> is used for renaming metadata.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const result = await conn.metadata.rename(&#39;CustomObject&#39;, &#39;TestObject3__c&#39;, &#39;UpdatedTestObject3__c&#39;);
+for (let i=0; i &lt; results.length; i++) {
+  const result = results[i];
+  console.log(&#39;success ? : &#39; + result.success);
+  console.log(&#39;fullName : &#39; + result.fullName);
+}
+</code></pre>
+<h3 id="delete-metadata">Delete Metadata</h3>
+<p><code>Metadata.delete(type, metadata)</code> can be used for deleting existing metadata objects.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const fullNames = [&#39;TestObject1__c&#39;, &#39;TestObject2__c&#39;];
+const results = await conn.metadata.delete(&#39;CustomObject&#39;, fullNames);
+
+for (let i=0; i &lt; results.length; i++) {
+  const result = results[i];
+  console.log(&#39;success ? : &#39; + result.success);
+  console.log(&#39;fullName : &#39; + result.fullName);
+}
+</code></pre>
+<h3 id="retrieve-deploy-metadata-file-based-">Retrieve / Deploy Metadata (File-based)</h3>
+<p>You can retrieve metadata information which is currently registered in Salesforce by calling the <code>Metadata.retrieve(options)</code> method.</p>
+<p>The structure of hash object argument <code>options</code> is same to the message object defined in Salesforce Metadata API.</p>
+<pre><code class="lang-javascript">const fs = require(&#39;fs&#39;);
+conn.metadata.retrieve({ packageNames: [ &#39;My Test Package&#39; ] })
+  .stream().pipe(fs.createWriteStream(&quot;./path/to/MyPackage.zip&quot;));
+</code></pre>
+<p>If you have metadata definition files in your file system, create zip file from them
+and call <code>Metadata.deploy(zipIn, options)</code> to deploy all of them.</p>
+<pre><code class="lang-javascript">const fs = require(&#39;fs&#39;);
+const zipStream = fs.createReadStream(&quot;./path/to/MyPackage.zip&quot;);
+const result = await conn.metadata.deploy(zipStream, { runTests: [ &#39;MyApexTriggerTest&#39; ] }).complete();
+console.log(&#39;done ? :&#39; + result.done);
+console.log(&#39;success ? : &#39; + result.true);
+console.log(&#39;state : &#39; + result.state);
+console.log(&#39;component errors: &#39; + result.numberComponentErrors);
+console.log(&#39;components deployed: &#39; + result.numberComponentsDeployed);
+console.log(&#39;tests completed: &#39; + result.numberTestsCompleted);
+</code></pre>
+
+
+<h2 id="streaming-api">Streaming API</h2>
+<p>You can subscribe topic and receive message from Salesforce Streaming API,
+by using <code>Streaming.Topic(topicName)</code> and <code>Streaming-Topic.subscribe(listener)</code>.</p>
+<p>Before the subscription, you should insert appropriate PushTopic record 
+(in this example, &quot;InvoiceStatementUpdates&quot;) as written in <a href="http://www.salesforce.com/us/developer/docs/api_streaming/">Streaming API guide</a>.</p>
+<pre><code class="lang-javascript">conn.streaming.topic(&quot;InvoiceStatementUpdates&quot;).subscribe(function(message) {
+  console.log(&#39;Event Type : &#39; + message.event.type);
+  console.log(&#39;Event Created : &#39; + message.event.createdDate);
+  console.log(&#39;Object Id : &#39; + message.sobject.Id);
+});
+</code></pre>
+
+
+<h2 id="tooling-api">Tooling API</h2>
+<p>Tooling API is used to build custom development tools for Salesforce platform,
+for example building custom Apex Code / Visualforce page editor.</p>
+<p>It has almost same interface as the REST API,
+so CRUD operations, query, and describe can be done also for these developer objects.</p>
+<h3 id="crud-to-tooling-objects">CRUD to Tooling Objects</h3>
+<p>You can create/retrieve/update/delete records in tooling objects (e.g. ApexCode, ApexPage).</p>
+<p>To get reference of tooling object, use <code>Tooling.sobject(sobjectType)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const apexBody = [
+  &quot;public class TestApex {&quot;,
+  &quot;  public string sayHello() {&quot;,
+  &quot;    return &#39;Hello&#39;;&quot;,
+  &quot;  }&quot;,
+  &quot;}&quot;
+].join(&#39;\n&#39;);
+const res = await conn.tooling.sobject(&#39;ApexClass&#39;).create({
+  body: apexBody
+});
+console.log(res);
+</code></pre>
+<h3 id="query-tooling-objects">Query Tooling Objects</h3>
+<p>Querying records in tooling objects is also supported.
+Use <code>Tooling.query(soql)</code> or <code>SObject.find(filters, fields)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const records = await conn.tooling.sobject(&#39;ApexTrigger&#39;)
+  .find({ TableEnumOrId: &quot;Lead&quot; })
+  .execute()
+console.log(`fetched : ${records.length}`);
+for (const record in records) {
+  console.log(`Id: ${record.Id}`);
+  console.log(`Name: ${record.Name}`);
+}
+</code></pre>
+<h3 id="describe-tooling-objects">Describe Tooling Objects</h3>
+<p>Describing all tooling objects in the organization is done by calling <code>Tooling.describeGlobal()</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.tooling.describeGlobal()
+console.log(`Num of tooling objects : ${res.sobjects.length}`);
+</code></pre>
+<p>Describing each object detail is done by calling <code>SObject.describe()</code> to the tooling object reference,
+or just calling <code>Tooling.describeSObject(sobjectType)</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.tooling.sobject(&#39;ApexPage&#39;).describe()
+console.log(`Label : ${res.label}`);
+console.log(`Num of Fields : ${res.fields.length}`);
+</code></pre>
+<h3 id="execute-anonymous-apex">Execute Anonymous Apex</h3>
+<p>You can use Tooling API to execute anonymous Apex Code, by passing apex code string text to <code>Tooling.executeAnonymous</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// execute anonymous Apex Code
+const apexBody = &quot;System.debug(&#39;Hello, World&#39;);&quot;;
+const res = await conn.tooling.executeAnonymous(apexBody);
+console.log(`compiled?: ${res.compiled}`); // compiled successfully
+console.log(`executed?: ${res.success}`); // executed successfully
+})()
+</code></pre>
+
+
+<h2 id="advanced-topics">Advanced Topics</h2>
+<h3 id="record-stream-pipeline">Record Stream Pipeline</h3>
+<p>Record stream is a stream system which regards records in its stream, similar to Node.js&#39;s standard readable/writable streams.</p>
+<p>Query object - usually returned by <code>Connection.query(soql)</code> / <code>SObject.find(conditions, fields)</code> methods -
+is considered as <code>InputRecordStream</code> which emits event <code>record</code> when received record from server.</p>
+<p>Batch object - usually returned by <code>Bulk-Job.createBatch()</code> / <code>Bulk.load(sobjectType, operation, input)</code> / <code>SObject.bulkload(operation, input)</code> methods -
+is considered as <code>OutputRecordStream</code> and have <code>send()</code> and <code>end()</code> method to accept incoming record.</p>
+<p>You can use <code>InputRecordStream.pipe(outputRecordStream)</code> to pipe record stream.</p>
+<p>RecordStream can be converted to usual Node.js&#39;s stream object by calling <code>RecordStream.stream()</code> method.</p>
+<p>By default (and only currently) records are serialized to CSV string.</p>
+<h4 id="piping-query-record-stream-to-batch-record-stream">Piping Query Record Stream to Batch Record Stream</h4>
+<p>The idea of record stream pipeline is the base of bulk operation for queried record.
+For example, the same process of <code>Query.destroy()</code> can be expressed as following:</p>
+<pre><code class="lang-javascript">//
+// This is much more complex version of Query.destroy().
+//
+const Account = conn.sobject(&#39;Account&#39;);
+Account.find({ CreatedDate: jsforce.Date.TODAY })
+  .pipe(Account.deleteBulk())
+  .on(&#39;response&#39;, (rets) =&gt; {
+    console.log(rets)
+  })
+  .on(&#39;error&#39;, (err) =&gt; {
+    console.error(err)
+  });
+</code></pre>
+<p>And <code>Query.update(mapping)</code> can be expressed as following:</p>
+<pre><code class="lang-javascript">//
+// This is much more complex version of Query.update().
+//
+const Opp = conn.sobject(&#39;Opportunity&#39;);
+Opp.find(
+    { &quot;Account.Id&quot; : &quot;0010500000gYx35AAC&quot; },
+    { Id: 1, Name: 1, &quot;Account.Name&quot;: 1 }
+  )
+  .pipe(jsforce.RecordStream.map((r) =&gt; {
+    return { Id: r.Id, Name: `${r.Account.Name} - ${r.Name}` };
+  }))
+  .pipe(Opp.updateBulk())
+  .on(&#39;response&#39;, (rets) =&gt; {
+    console.log(rets)
+  })
+  .on(&#39;error&#39;, (err) =&gt; {
+    console.error(err)
+  });
+</code></pre>
+<p>Following is an example using <code>Query.stream()</code> (inherited <code>RecordStream.stream()</code>) to convert a record stream to a Node.js stream,
+in order to export all queried records to CSV file.</p>
+<pre><code class="lang-javascript">const csvFileOut = require(&#39;fs&#39;).createWriteStream(&#39;path/to/Account.csv&#39;);
+conn.query(&quot;SELECT Id, Name, Type, BillingState, BillingCity, BillingStreet FROM Account&quot;)
+    .stream() // Convert to Node.js&#39;s usual readable stream.
+    .pipe(csvFileOut);
+</code></pre>
+<h4 id="record-stream-filtering-mapping">Record Stream Filtering / Mapping</h4>
+<p>You can also filter / map queried records to output record stream.
+Static functions like <code>InputRecordStream.map(mappingFn)</code> and <code>InputRecordStream.filter(filterFn)</code> create a record stream
+which accepts records from upstream and pass to downstream, applying given filtering / mapping function.</p>
+<pre><code class="lang-javascript">//
+// Write down Contact records to CSV, with header name converted.
+//
+conn.sobject(&#39;Contact&#39;)
+    .find({}, { Id: 1, Name: 1 })
+    .map((r) =&gt; {
+      return { ID: r.Id, FULL_NAME: r.Name };
+    })
+    .stream().pipe(fs.createWriteStream(&quot;Contact.csv&quot;));
+//
+// Write down Lead records to CSV file,
+// eliminating duplicated entry with same email address.
+//
+const emails = {};
+conn.sobject(&#39;Lead&#39;)
+    .find({}, { Id: 1, Name: 1, Company: 1, Email: 1 })
+    .filter((r) =&gt; {
+      const dup = emails[r.Email];
+      if (!dup) { emails[r.Email] = true; }
+      return !dup;
+    })
+    .stream().pipe(fs.createWriteStream(&quot;Lead.csv&quot;));
+</code></pre>
+<p>Here is much lower level code to achieve the same result using <code>InputRecordStream.pipe()</code>.</p>
+<pre><code class="lang-javascript">//
+// Write down Contact records to CSV, with header name converted.
+//
+conn.sobject(&#39;Contact&#39;)
+    .find({}, { Id: 1, Name: 1 })
+    .pipe(jsforce.RecordStream.map((r) =&gt; {
+      return { ID: r.Id, FULL_NAME: r.Name };
+    }))
+    .stream().pipe(fs.createWriteStream(&quot;Contact.csv&quot;));
+//
+// Write down Lead records to CSV file,
+// eliminating duplicated entry with same email address.
+//
+const emails = {};
+conn.sobject(&#39;Lead&#39;)
+    .find({}, { Id: 1, Name: 1, Company: 1, Email: 1 })
+    .pipe(jsforce.RecordStream.filter((r) =&gt; {
+      const dup = emails[r.Email];
+      if (!dup) { emails[r.Email] = true; }
+      return !dup;
+    }))
+    .stream().pipe(fs.createWriteStream(&quot;Lead.csv&quot;));
+</code></pre>
+<h4 id="example-data-migration">Example: Data Migration</h4>
+<p>By using record stream pipeline, you can achieve data migration in a simple code.</p>
+<pre><code class="lang-javascript">//
+// Connection for org which migrating data from
+//
+const conn1 = new jsforce.Connection({
+  // ...
+});
+//
+// Connection for org which migrating data to
+//
+const conn2 = new jsforce.Connection({
+  // ...
+});
+//
+// Get query record stream from Connetin #1
+// and pipe it to batch record stream from connection #2
+//
+const query = await conn1.query(&quot;SELECT Id, Name, Type, BillingState, BillingCity, BillingStreet FROM Account&quot;);
+const job = conn2.bulk.createJob(&quot;Account&quot;, &quot;insert&quot;);
+const batch = job.createBatch();
+query.pipe(batch);
+batch.on(&#39;queue&#39;, () =&gt; {
+  jobId = job.id;
+  batchId = batch.id;
+  //...
+})
+</code></pre>
+
+      </div>
+      <div class="col-md-3 hidden-xs hidden-sm hidden-print">
+<div id="sidebar" data-spy="affix" data-offset-top="130" data-offset-bottom="0">
+  <script>
+$(function() {
+  var ul = $('<ul class="nav">');
+  $('#content h2').each(function() {
+    var h2 = $(this);
+    var li = $('<li>').append($('<a>').attr('href', '#'+h2.attr('id')).text(h2.text()));
+    ul.append(li);
+    var cul = $('<ul class="nav">');
+    h2.nextAll('h2, h3').each(function() {
+      var ch3 = $(this);
+      if (ch3.get(0).tagName.toLowerCase() === 'h2') {
+        return false;
+      }
+      var cli = $('<li>').append($('<a>').attr('href', '#'+ch3.attr('id')).text(ch3.text()));
+      cul.append(cli);
+    });
+    if (cul.children().size()>0) {
+      li.append(cul);
+    }
+  });
+  ul.appendTo('#sidebar');
+
+  var scrolling = false;
+
+  $('#sidebar').on('click', 'li a', function(e) {
+    e.preventDefault();
+    var id = $(this).attr('href').substring(1);
+    adjustScroll(id);
+  });
+
+  $('body').scrollspy({ target: '#sidebar', offset: 90 })
+
+  $(window).on('hashchange', function(e) {
+    if (!scrolling) { adjustScroll(null, 1); }
+  });
+
+  adjustScroll();
+
+  function adjustScroll(id, speed) {
+    id = id || (location.hash && location.hash.substring(1));
+    if (!id) { return; }
+    var el = $(document).find('#'+id);
+    if (el.size() === 0) { return; }
+    var y = el.offset().top - 70;
+    scrolling = true;
+    $('body').animate({ scrollTop: y }, speed || 500, function() {
+      // var y = window.scrollY;
+      location.hash = '#' + id;
+      window.scrollTo(0, y);
+      scrolling = false;
+    });
+  }
+
+});
+  </script>
+</div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 copyright">
+        JSforce development is sponsored by <a href="http://www.mashmatrix.com">Mashmatrix, Inc</a> <br>
+        Code licensed under <a href="https://github.com/jsforce/jsforce/blob/master/LICENSE">the MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <br>
+      </div>
+      <ul class="col-md-4 list-inline footer-menu">
+        
+        <li><a href="/">Home</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-418283-10', 'jsforce.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+</body>
+</html>
