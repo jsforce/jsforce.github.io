@@ -7,9 +7,9 @@
   },
   "main": "node_modules/docpad/bin/docpad-server",
   "scripts": {
-    "start": "node_modules/docpad/bin/docpad-server",
-    "build": "bin/build.sh",
-    "release": "bin/release.sh"
+    "build": "rm -rf out && NODE_ENV=production docpad generate --out out",
+    "build:ci": "NODE_ENV=production docpad generate --out out/tmp",
+    "start": "docpad-server"
   },
   "devDependencies": {
     "docpad-plugin-eco": "^2.1.0",
