@@ -2,11 +2,16 @@
 layout: default
 category: document
 title: Document
-subtitle: JSforce library document with brief usage examples of each API
+subtitle: JSforce library document with brief usage examples of each API. 
 sidebar: menu
 scripts:
   - '/js/document.js'
 ---
+
+<b>NOTE:</b>
+
+These docs are for jsforce v3.
+<a href="/document-v1/">Looking for v1 docs?</a>
 
 <%- @partial('document/connection') %>
 
@@ -43,3 +48,5 @@ scripts:
 <%- @partial('document/tooling') %>
 
 <%- @partial('document/advanced') %>
+
+<h3><a href="https://github.com/jsforce/jsforce.github.io">Edit this page</a></h3>
