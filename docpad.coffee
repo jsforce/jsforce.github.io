@@ -41,7 +41,7 @@ docpadConfig = {
     ,
       name: "api"
       title: "API Reference"
-      url: "http://jsforce.github.io/jsforce/doc/"
+      url: "https://jsforce.github.io/jsforce/"
     ,
       name: "console"
       title: "Web Console"
