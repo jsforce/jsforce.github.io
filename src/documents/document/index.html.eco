@@ -48,5 +48,3 @@ These docs are for jsforce v3.
 <%- @partial('document/tooling') %>
 
 <%- @partial('document/advanced') %>
-
-<h3><a href="https://github.com/jsforce/jsforce.github.io">Edit this page</a></h3>
