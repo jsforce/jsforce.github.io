@@ -49,6 +49,9 @@ console.log("User ID: " + userInfo.id);
 console.log("Org ID: " + userInfo.organizationId);
 ```
 
+> [!WARNING]
+> If you create your org in Summer ’23 or later, the OAuth 2.0 username-password flow is blocked by default as described in this [article](https://help.salesforce.com/s/articleView?id=release-notes.rn_security_username-password_flow_blocked_by_default.htm&release=244&type=5). The username-password flow presents security risks. We recommend using the OAuth 2.0 client credentials flow instead.
+
 ### Session ID
 
 If you have a Salesforce session ID and its server URL information use it to authenticate.
