@@ -57,6 +57,9 @@ conn.login(username, password, function(err, userInfo) {
 });
 ```
 
+> [!WARNING]
+> If you create your org in Summer ’23 or later, the OAuth 2.0 username-password flow is blocked by default as described in this [article](https://help.salesforce.com/s/articleView?id=release-notes.rn_security_username-password_flow_blocked_by_default.htm&release=244&type=5). The username-password flow presents security risks. We recommend using the OAuth 2.0 client credentials flow instead.
+
 ### Session ID
 
 If Salesforce session ID and its server URL information is passed from Salesforce (from 'Custom Link' or something),
