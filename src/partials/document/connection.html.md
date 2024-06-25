@@ -110,6 +110,49 @@ const res = await conn.oauth2.refreshToken(refreshToken)
 console.log(res.access_token)
 ```
 
+<b>NOTE</b>: You don't need to listen to the `refresh` event and grab the new access token manually, this is done automatically (see the `Session refresh handler` section).
+
+### Session refresh handler
+
+You can define a function that refreshes an expired access token:
+
+```javascript
+const jsforce = require('jsforce');
+
+const conn = new jsforce.Connection({
+  loginUrl : '<your Salesforce server URL (e.g. https://na1.salesforce.com) is here>',
+  instanceUrl : '<your Salesforce server URL (e.g. https://na1.salesforce.com) is here>',
+  refreshFn: async(conn, callback) => {
+    try {
+      // re-auth to get a new access token
+      await conn.login(username, password);
+      if (!conn.accessToken) {
+        throw new Error('Access token not found after login');
+      }
+
+      console.log("Token refreshed")
+
+      // 1st arg can be an `Error` or null if successful
+      // 2nd arg should be the valid access token
+      callback(null, conn.accessToken);
+    } catch (err) {
+      if (err instanceof Error) {
+        callback(err);
+      } else {
+        throw err;
+      }
+    }
+  }
+});
+```
+
+The refresh function will be executed whenever the API returns a `401`, the new access token passed in the callback will be set in the
+`Connection` instance and the request will be re-issued.
+
+`Connection.login` sets the same `refreshFn` function above in the example.
+
+You can use this feature to handle session refresh in different OAuth methods like JWT or Client Credentials.
+
 
 ### Logout
 
