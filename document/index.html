@@ -335,6 +335,41 @@ conn.on(&quot;refresh&quot;, (accessToken, res) =&gt; {
 const res = await conn.oauth2.refreshToken(refreshToken)
 console.log(res.access_token)
 </code></pre>
+<p><b>NOTE</b>: You don&#39;t need to listen to the <code>refresh</code> event and grab the new access token manually, this is done automatically (see the <code>Session refresh handler</code> section).</p>
+<h3 id="session-refresh-handler">Session refresh handler</h3>
+<p>You can define a function that refreshes an expired access token:</p>
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection({
+  loginUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
+  refreshFn: async(conn, callback) =&gt; {
+    try {
+      // re-auth to get a new access token
+      await conn.login(username, password);
+      if (!conn.accessToken) {
+        throw new Error(&#39;Access token not found after login&#39;);
+      }
+
+      console.log(&quot;Token refreshed&quot;)
+
+      // 1st arg can be an `Error` or null if successful
+      // 2nd arg should be the valid access token
+      callback(null, conn.accessToken);
+    } catch (err) {
+      if (err instanceof Error) {
+        callback(err);
+      } else {
+        throw err;
+      }
+    }
+  }
+});
+</code></pre>
+<p>The refresh function will be executed whenever the API returns a <code>401</code>, the new access token passed in the callback will be set in the
+<code>Connection</code> instance and the request will be re-issued.</p>
+<p><code>Connection.login</code> sets the same <code>refreshFn</code> function above in the example.</p>
+<p>You can use this feature to handle session refresh in different OAuth methods like JWT or Client Credentials.</p>
 <h3 id="logout">Logout</h3>
 <p>Call <code>Connection.logout()</code> to logout from the server and invalidate current session.
 It is valid for both SOAP API based sessions and OAuth2 based sessions.</p>
