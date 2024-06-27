@@ -49,4 +49,6 @@ These docs are for jsforce v3.
 
 <%- @partial('document/request') %>
 
+<%- @partial('document/cors') %>
+
 <%- @partial('document/advanced') %>
