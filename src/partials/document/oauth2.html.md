@@ -92,3 +92,23 @@ console.log("User ID: " + userInfo.id);
 console.log("Org ID: " + userInfo.organizationId);
 ```
 
+### Client Credentials Flow (OAuth 2.0 Client Credentials Flow)
+
+Similar to the JWT example, just pass the client id and secret from your connected app and use the `client_credentials` grant type.
+
+For more information about the setup, see: https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&type=5
+
+```javascript
+import { Connection } from 'jsforce';
+
+const conn = new jsforce.Connection({
+  instanceUrl: '<org instance URL>',
+  oauth2: { 
+    clientId : '<your Salesforce OAuth2 client ID is here>',
+    clientSecret : '<your Salesforce OAuth2 client secret is here>',
+    loginUrl
+  },
+});
+
+const userInfo = await conn.authorize({ grant_type: "client_credentials" })
+```
