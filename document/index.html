@@ -308,7 +308,7 @@ Next time you can use them to establish a connection.</p>
 
 const conn = new jsforce.Connection({
   instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
-  accessToken : &#39;&lt;your Salesforrce OAuth2 access token is here&gt;&#39;
+  accessToken : &#39;&lt;your Salesforce OAuth2 access token is here&gt;&#39;
 });
 </code></pre>
 <h3 id="access-token-with-refresh-token">Access Token with Refresh Token</h3>
@@ -323,7 +323,7 @@ const conn = new jsforce.Connection({
     redirectUri : &#39;&lt;your Salesforce OAuth2 redirect URI is here&gt;&#39;
   },
   instanceUrl : &#39;&lt;your Salesforce server URL (e.g. https://na1.salesforce.com) is here&gt;&#39;,
-  accessToken : &#39;&lt;your Salesforrce OAuth2 access token is here&gt;&#39;,
+  accessToken : &#39;&lt;your Salesforce OAuth2 access token is here&gt;&#39;,
   refreshToken : &#39;&lt;your Salesforce OAuth2 refresh token is here&gt;&#39;
 });
 conn.on(&quot;refresh&quot;, (accessToken, res) =&gt; {
@@ -461,6 +461,22 @@ console.log(conn.instanceUrl);
 // logged in user property
 console.log(&quot;User ID: &quot; + userInfo.id);
 console.log(&quot;Org ID: &quot; + userInfo.organizationId);
+</code></pre>
+<h3 id="client-credentials-flow-oauth-2-0-client-credentials-flow-">Client Credentials Flow (OAuth 2.0 Client Credentials Flow)</h3>
+<p>Similar to the JWT example, just pass the client id and secret from your connected app and use the <code>client_credentials</code> grant type.</p>
+<p>For more information about the setup, see: <a href="https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&amp;type=5">https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&amp;type=5</a></p>
+<pre><code class="lang-javascript">import { Connection } from &#39;jsforce&#39;;
+
+const conn = new jsforce.Connection({
+  instanceUrl: &#39;&lt;org instance URL&gt;&#39;,
+  oauth2: { 
+    clientId : &#39;&lt;your Salesforce OAuth2 client ID is here&gt;&#39;,
+    clientSecret : &#39;&lt;your Salesforce OAuth2 client secret is here&gt;&#39;,
+    loginUrl
+  },
+});
+
+const userInfo = await conn.authorize({ grant_type: &quot;client_credentials&quot; })
 </code></pre>
 
 
@@ -633,6 +649,51 @@ await conn.sobject(&quot;Contact&quot;)
       }
     }
   });
+</code></pre>
+<h4 id="conditionals">Conditionals</h4>
+<p>You can define multiple <code>AND</code>/<code>OR</code> conditional expressions by passing them in an array:</p>
+<pre><code class="lang-javascript">// The following code gets translated to this soql query:
+// SELECT Name FROM Contact WHERE LastName LIKE &#39;A%&#39; OR LastName LIKE &#39;B%&#39;
+// 
+const contacts = await conn.sobject(&quot;Contact&quot;)
+  .find({
+    $or: [{ LastName: { $like : &#39;A%&#39; }}, { LastName: { $like : &#39;B%&#39;} }]
+  }, [&#39;Name&#39;])
+
+console.log(contacts);
+</code></pre>
+<h4 id="dates">Dates</h4>
+<p><code>jsforce.Sfdate</code> provides some utilities to help working dates in SOQL:
+<a href="https://jsforce.github.io/jsforce/classes/date.SfDate.html">https://jsforce.github.io/jsforce/classes/date.SfDate.html</a></p>
+<p>Literals like <code>YESTERDAY</code>, <code>TODAY</code>, <code>TOMORROW</code>:</p>
+<pre><code class="lang-javascript">// SELECT Name FROM Account WHERE PersonBirthDate = TODAY
+//
+const accounts = await conn.sobject(&quot;Account&quot;)
+  .find({
+    PersonBirthDate: jsforce.SfDate.TODAY
+  }, [&#39;Name&#39;]);
+
+console.log(accounts);
+</code></pre>
+<p>Dynamic N days/weeks/month/quarter functions:</p>
+<pre><code class="lang-javascript">// SELECT Name FROM Account WHERE PersonBirthDate = LAST_N_WEEKS:5
+//
+const accounts = await conn.sobject(&quot;Account&quot;)
+  .find({
+    PersonBirthDate: jsforce.SfDate.LAST_N_WEEKS(5)
+  }, [&#39;Name&#39;]);
+
+console.log(accounts);
+</code></pre>
+<p>Even parse a JS <code>Date</code> object:</p>
+<pre><code class="lang-javascript">// SELECT Name FROM Account WHERE PersonBirthDate = 2024-06-27
+//
+const accounts = await conn.sobject(&quot;Account&quot;)
+  .find({
+    PersonBirthDate: jsforce.SfDate.toDateLiteral(new Date())
+  }, [&#39;Name&#39;]);
+
+console.log(accounts);
 </code></pre>
 
 
@@ -814,6 +875,21 @@ const rets = await conn.sobject(&#39;Account&#39;)
   );
 console.log(&#39;processed: &#39; + rets.length);
 </code></pre>
+<h3 id="http-headers">HTTP headers</h3>
+<p>You can pass a <code>headers</code> object containing REST API headers on any CRUD operation:</p>
+<pre><code class="lang-javascript">const rets = await conn.sobject(&#39;Account&#39;)
+  .create(
+    accounts,
+    {
+      allowRecursive: true,
+      headers: {
+        &#39;Sforce-Duplicate-Rule-Header&#39;: &#39;allowSave=true&#39;
+      }
+    }
+  );
+</code></pre>
+<p>For more info about supported headers, see:
+<a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/headers.htm">https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/headers.htm</a></p>
 <h3 id="update-delete-queried-records">Update / Delete Queried Records</h3>
 <p>If you want to update/delete records in Salesforce that match a specific condition in bulk,
 <code>Query.update(mapping)</code> / <code>Query.destroy()</code> allows to use the Bulk/Bulk V2 API.</p>
@@ -1787,6 +1863,109 @@ console.log(`compiled?: ${res.compiled}`); // compiled successfully
 console.log(`executed?: ${res.success}`); // executed successfully
 })()
 </code></pre>
+
+
+<h2 id="request">Request</h2>
+<p>Make REST api calls to APIs that are not explicitly supported by JSForce.</p>
+<h3 id="setting-the-url">Setting the URL</h3>
+<p>The Endpoint URL can be in one of the following formats:</p>
+<ul>
+<li>Absolute URL: <code>https://na1.salesforce.com/services/data/v32.0/sobjects/Account/describe</code>.</li>
+<li>Relative path from root: <code>/services/data/v32.0/sobjects/Account/describe</code>.</li>
+<li>Relative path from version root: <code>/sobjects/Account/describe</code>.<ul>
+<li>This is only supported if you have explicitly set a default version.</li>
+</ul>
+</li>
+</ul>
+<h3 id="making-requests">Making Requests</h3>
+<p>You can use <code>Connection.request()</code> to make api requests.</p>
+<p>For GET requests, you can pass in a string URL.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const res = await conn.request(&#39;/services/data/v47.0/ui-api/object-info&#39;);
+console.log(res)
+</code></pre>
+<p>If you prefer to use callbacks instead of promises, pass a callback as the second parameter.</p>
+<pre><code class="lang-javascript">const res = await conn.request(&#39;/services/data/v47.0/ui-api/object-info&#39;);
+console.log(res)
+</code></pre>
+<p>For other HTTP methods, you can pass an object to the request method. Ensure that you serialize the body of the request.</p>
+<pre><code class="lang-javascript">/* @interactive */
+// Bulk API 2.0 - Query
+const requestBody = {
+  operation: &#39;query&#39;,
+  query: &#39;SELECT Id, Name FROM Account LIMIT 1000&#39;,
+};
+
+const res = await conn
+  .request({
+    method: &#39;POST&#39;,
+    url: &#39;/services/data/v47.0/jobs/query&#39;,
+    body: JSON.stringify(requestBody),
+    headers: {
+      &#39;content-type&#39;: &#39;application/json&#39;,
+    },
+  });
+console.log(res)
+</code></pre>
+<h4 id="request-helper-methods">Request Helper Methods</h4>
+<p>In addition to <code>Connection.request()</code>, JSForce provides the following helper methods that can also be used:</p>
+<ul>
+<li><code>Connection.requestGet()</code></li>
+<li><code>Connection.requestPatch()</code></li>
+<li><code>Connection.requestPost()</code></li>
+<li><code>Connection.requestPut()</code></li>
+<li><code>Connection.requestDelete()</code></li>
+</ul>
+<p>For <code>requestPatch</code>, <code>requestPost</code> and <code>requestPut</code>, these will be serialized automatically and the <code>content-type</code> will be set to <code>application/json</code>.</p>
+<pre><code class="lang-javascript">/* @interactive */
+const requestBody = {
+  operation: &#39;query&#39;,
+  query: &#39;SELECT Id, Name FROM Account LIMIT 1000&#39;,
+};
+
+const res = await conn.requestPost(&#39;/services/data/v47.0/jobs/query&#39;, requestBody);
+console.log(res);
+</code></pre>
+<h4 id="request-http-options">Request HTTP Options</h4>
+<p>All request methods allow setting HTTP options to be passed to the HTTP request.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>responseType</td>
+<td>string</td>
+<td>overrides the content-type from the response to change how the response is parsed. Valid values are <code>text/xml</code>, <code>application/xml</code>, <code>application/json</code>, <code>text/csv</code>. If you do not want JSForce to auto-parse the response, set this to any other value, e.x. <code>text</code>.</td>
+</tr>
+<tr>
+<td>noContentResponse</td>
+<td>any</td>
+<td>Alternative response when no content returned in response (= HTTP 204)</td>
+</tr>
+<tr>
+<td>transport</td>
+<td>Transport</td>
+<td>Transport for http api - you should not need to set this option.</td>
+</tr>
+</tbody>
+</table>
+<p>If you would like to opt-out of parsing, you can set the <code>responseType</code> to text. This is useful if you want the raw response from Salesforce instead of having the results automatically parsed.</p>
+<pre><code class="lang-javascript">// Get raw CSV data instead of allowing JSForce to parse the CSV to JSON
+const res = await conn.requestGet(&#39;/services/data/v47.0/jobs/query/7502J00000LYZC4QAP/results&#39;, { responseType: &#39;text&#39; });
+console.log(res);
+</code></pre>
+
+
+<h2 id="cors">CORS</h2>
+<p>If you&#39;re getting CORS-related errors when using jsforce in the browser it might be that the API being used doesn&#39;t support CORS, see:
+<a href="https://help.salesforce.com/s/articleView?id=sf.extend_code_cors.htm&amp;type=5">https://help.salesforce.com/s/articleView?id=sf.extend_code_cors.htm&amp;type=5</a></p>
+<p>For those cases you&#39;ll need to use the <code>jsforce-ajax-proxy</code> proxy server, check the README for setup instructions:
+<a href="https://github.com/jsforce/jsforce-ajax-proxy/">https://github.com/jsforce/jsforce-ajax-proxy/</a></p>
 
 
 <h2 id="advanced-topics">Advanced Topics</h2>
