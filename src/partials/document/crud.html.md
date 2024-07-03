@@ -220,6 +220,26 @@ const rets = await conn.sobject('Account')
 console.log('processed: ' + rets.length);
 ```
 
+### HTTP headers
+
+You can pass a `headers` object containing REST API headers on any CRUD operation:
+
+```javascript
+const rets = await conn.sobject('Account')
+  .create(
+    accounts,
+    {
+      allowRecursive: true,
+      headers: {
+        'Sforce-Duplicate-Rule-Header': 'allowSave=true'
+      }
+    }
+  );
+```
+
+For more info about supported headers, see:
+https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/headers.htm
+
 ### Update / Delete Queried Records
 
 If you want to update/delete records in Salesforce that match a specific condition in bulk,

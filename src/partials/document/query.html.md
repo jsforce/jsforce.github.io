@@ -209,3 +209,61 @@ await conn.sobject("Contact")
   });
 ```
 
+#### Conditionals
+
+You can define multiple `AND`/`OR` conditional expressions by passing them in an array:
+```javascript
+// The following code gets translated to this soql query:
+// SELECT Name FROM Contact WHERE LastName LIKE 'A%' OR LastName LIKE 'B%'
+// 
+const contacts = await conn.sobject("Contact")
+  .find({
+    $or: [{ LastName: { $like : 'A%' }}, { LastName: { $like : 'B%'} }]
+  }, ['Name'])
+
+console.log(contacts);
+```
+
+#### Dates
+
+`jsforce.Sfdate` provides some utilities to help working dates in SOQL:
+https://jsforce.github.io/jsforce/classes/date.SfDate.html
+
+Literals like `YESTERDAY`, `TODAY`, `TOMORROW`:
+
+```javascript
+// SELECT Name FROM Account WHERE PersonBirthDate = TODAY
+//
+const accounts = await conn.sobject("Account")
+  .find({
+    PersonBirthDate: jsforce.SfDate.TODAY
+  }, ['Name']);
+
+console.log(accounts);
+```
+
+Dynamic N days/weeks/month/quarter functions:
+
+```javascript
+// SELECT Name FROM Account WHERE PersonBirthDate = LAST_N_WEEKS:5
+//
+const accounts = await conn.sobject("Account")
+  .find({
+    PersonBirthDate: jsforce.SfDate.LAST_N_WEEKS(5)
+  }, ['Name']);
+
+console.log(accounts);
+```
+
+Even parse a JS `Date` object:
+```javascript
+// SELECT Name FROM Account WHERE PersonBirthDate = 2024-06-27
+//
+const accounts = await conn.sobject("Account")
+  .find({
+    PersonBirthDate: jsforce.SfDate.toDateLiteral(new Date())
+  }, ['Name']);
+
+console.log(accounts);
+```
+
