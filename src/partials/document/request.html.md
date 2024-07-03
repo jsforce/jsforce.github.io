@@ -16,23 +16,21 @@ The Endpoint URL can be in one of the following formats:
 
 ### Making Requests
 
-You can use `Connection#request()` to make api requests.
+You can use `Connection.request()` to make api requests.
 
 For GET requests, you can pass in a string URL.
 
 ```javascript
 /* @interactive */
-conn.request('/services/data/v47.0/ui-api/object-info').then(response => {
-  console.log(response);
-});
+const res = await conn.request('/services/data/v47.0/ui-api/object-info');
+console.log(res)
 ```
 
 If you prefer to use callbacks instead of promises, pass a callback as the second parameter.
 
 ```javascript
-conn.request('/services/data/v47.0/ui-api/object-info', function(err, response) {
-  console.log(response);
-});
+const res = await conn.request('/services/data/v47.0/ui-api/object-info');
+console.log(res)
 ```
 
 For other HTTP methods, you can pass an object to the request method. Ensure that you serialize the body of the request.
@@ -45,7 +43,7 @@ const requestBody = {
   query: 'SELECT Id, Name FROM Account LIMIT 1000',
 };
 
-conn
+const res = await conn
   .request({
     method: 'POST',
     url: '/services/data/v47.0/jobs/query',
@@ -53,21 +51,19 @@ conn
     headers: {
       'content-type': 'application/json',
     },
-  })
-  .then(response => {
-    console.log(response);
   });
+console.log(res)
 ```
 
 #### Request Helper Methods
 
-In addition to `Connection#request()`, JSForce provides the following helper methods that can also be used:
+In addition to `Connection.request()`, JSForce provides the following helper methods that can also be used:
 
-- `Connection#requestGet()`
-- `Connection#requestPatch()`
-- `Connection#requestPost()`
-- `Connection#requestPut()`
-- `Connection#requestDelete()`
+- `Connection.requestGet()`
+- `Connection.requestPatch()`
+- `Connection.requestPost()`
+- `Connection.requestPut()`
+- `Connection.requestDelete()`
 
 For `requestPatch`, `requestPost` and `requestPut`, these will be serialized automatically and the `content-type` will be set to `application/json`.
 
@@ -78,9 +74,8 @@ const requestBody = {
   query: 'SELECT Id, Name FROM Account LIMIT 1000',
 };
 
-conn.requestPost('/services/data/v47.0/jobs/query', requestBody).then(response => {
-  console.log(response);
-});
+const res = await conn.requestPost('/services/data/v47.0/jobs/query', requestBody);
+console.log(res);
 ```
 
 #### Request HTTP Options
@@ -97,7 +92,6 @@ If you would like to opt-out of parsing, you can set the `responseType` to text.
 
 ```javascript
 // Get raw CSV data instead of allowing JSForce to parse the CSV to JSON
-requestGet('/services/data/v47.0/jobs/query/7502J00000LYZC4QAP/results', { responseType: 'text' }).then(response => {
-  console.log(response);
-});
+const res = await conn.requestGet('/services/data/v47.0/jobs/query/7502J00000LYZC4QAP/results', { responseType: 'text' });
+console.log(res);
 ```
