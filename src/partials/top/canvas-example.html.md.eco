@@ -9,14 +9,12 @@
 <head>
   <meta id="sf-canvas-signed-request" content="<%- '<' %>%= verifiedSignedRequestJSON %>" />
   <script src="https://login.salesforce.com/canvas/sdk/js/<%= @apiVersion %>/canvas-all.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js"></script>
   <script>
-var sr = document.getElementById('sf-canvas-signed-request').content;
-var conn = new jsforce.Connection({ signedRequest: sr });
-conn.query('SELECT Id, Name FROM Account', function(err, res) {
-  if (err) { return console.error(err); }
-  console.log(res);
-});
+    let sr = document.getElementById('sf-canvas-signed-request').content;
+    const conn = new jsforce.Connection({ signedRequest: sr });
+    const res = await conn.query('SELECT Id, Name FROM Account');
+    console.log(res);
   </script>
 </head>
 <body>

@@ -24,6 +24,7 @@ so you can learn the usage without hassle.
 - [Apex REST](/document/#apex-rest)
 - [Analytics API](/document/#analytics-api)
 - [Bulk API](/document/#bulk-api)
+- [Bulk 2.0 API](/document/#bulk-v2-api)
 - [Chatter API](/document/#chatter-api)
 - [Metadata API](/document/#metadata-api)
 - [Streaming API](/document/#streaming-api)
@@ -39,14 +40,24 @@ If you want to use JSforce as an API library in your Node.js project, install it
 $ npm install jsforce
 ```
 
+NOTE:
+the `jsforce` npm package includes the browser bundles + minified builds, TS source code and other deps that will not be used in a Node.js environment.
+For these cases we provide a slim, node-only package that strips these artifacts and deps.
+
+``` shell
+$ npm install @jsforce/jsforce-node
+```
+
+Aside from being smaller, there's no API differences between `jsforce` and `jsforce-node`.
+
 When you installed JSforce, you can import using `require('jsforce')` in your Node.js application code.
 
 ``` javascript
-var jsforce = require('jsforce');
-var conn = new jsforce.Connection();
+const jsforce = require('jsforce');
+const conn = new jsforce.Connection();
 ```
 
-Details for establishing API connection are written in the [document](/document/#connection) and options are in [API reference](/jsforce/doc/Connection.html).
+Details for establishing API connection are written in the [document](/document/#connection) and options are in [API reference](/jsforce/classes/connection.Connection.html).
 
 
 ### Web Browser
@@ -61,7 +72,7 @@ If you want to use JSforce in web browser JavaScript,
 Or you can use public CDN to include script directly to your web site.
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js"></script>
 ```
 
 When the script is loaded, `jsforce` object will be defined in global root.
@@ -120,10 +131,8 @@ Afterward you can get authorized API connection by listening `connect` event on 
 
 ```javascript
 jsforce.browser.on('connect', function(conn) {
-  conn.query('SELECT Id, Name FROM Account', function(err, res) {
-    if (err) { return handleError(err); }
-    handleResult(res);
-  });
+  const res = await conn.query('SELECT Id, Name FROM Account')
+  console.log(res);
 });
 ```
 
@@ -138,12 +147,9 @@ Also you can use static resources to upload JSforce JavaScript file to include.
 <apex:page docType="html-5.0" showHeader="false">
   <apex:includeScript value="{!URLFOR($Resource.JSforce)}" />
   <script>
-var conn = new jsforce.Connection({ accessToken: '{!$API.Session_Id}' });
-conn.query('SELECT Id, Name FROM Account', function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
-});
-
+const conn = new jsforce.Connection({ accessToken: '{!$API.Session_Id}' });
+const res = await conn.query('SELECT Id, Name FROM Account');
+console.log(res);
 // ...
 
   </script>
@@ -167,12 +173,10 @@ Also you have to load canvas JS SDK officially provided from Salesforce.
   <script src="https://login.salesforce.com/canvas/sdk/js/<%= @apiVersion %>/canvas-all.js"></script>
   <script src="/js/jsforce.js"></script>
   <script>
-var sr = document.getElementById('sf-canvas-signed-request').content;
-var conn = new jsforce.Connection({ signedRequest: sr });
-conn.query('SELECT Id, Name FROM Account', function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
-});
+let sr = document.getElementById('sf-canvas-signed-request').content;
+const conn = new jsforce.Connection({ signedRequest: sr });
+const res = await conn.query('SELECT Id, Name FROM Account');
+console.log(res);
 
 //...
 
@@ -188,41 +192,6 @@ conn.query('SELECT Id, Name FROM Account', function(err, res) {
 When you established the connection, you can call APIs defined in connection object.
 
 By JavaScript's nature, all API calls are done asynchronously.
-
-### Using Callback
-
-As broadly used in other JavaScript APIs, you can pass a callback function to wait and get the async response.
-
-The callback function has the same interface as normal Node.js callback, accepting two arguments - error and successful result.
-
-```javascript
-conn.query("SELECT Id, Name FROM Account LIMIT 10", function(err, res) {
-  if (err) { return handleError(err); }
-  handleResult(res);
-});
-```
-
-### Using Promise
-
-JSforce supports [Promise/A+](http://promises-aplus.github.io/promises-spec/) spec,
-and almost all API calls return Promise object.
-So you can chain the promise result by `then()` to handle the async response.
-
-```javascript
-conn.query("SELECT Id, Name FROM Account LIMIT 1")
-  .then(function(res) {
-    // receive resolved result from the promise,
-    // then return another promise for continuing API execution.
-    return conn.sobject('Account').create({ Name: 'Another Account' });
-  })
-  .then(function(ret) {
-    // handle final result of API execution
-    // ...
-  }, function(err) {
-    // catch any errors in execution
-    // ...
-  });
-```
 
 ## Command Line Interface
 

@@ -7,18 +7,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js"></script>
   <script>
-jsforce.browser.init({
-  clientId: '[ your Salesforce OAuth2 ClientID is here ]',
-  redirectUri: '[ your Salesforce registered redirect URI is here ]'
-});
-jsforce.browser.on('connect', function(conn) {
-  conn.query('SELECT Id, Name FROM Account', function(err, res) {
-    if (err) { return console.error(err); }
-    console.log(res);
-  });
-});
+    jsforce.browser.init({
+      clientId: '[ your Salesforce OAuth2 ClientID is here ]',
+      redirectUri: '[ your Salesforce registered redirect URI is here ]'
+    });
+    jsforce.browser.on('connect', async function(conn) {
+      const res = await conn.query('SELECT Id, Name FROM Account')
+      console.log(res);
+    });
   </script>
 </head>
 <body>
