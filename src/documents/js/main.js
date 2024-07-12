@@ -51,7 +51,8 @@ $(function() {
       return;
     }
     var codeEl = getCodeElement(this);
-    var code = codeEl.text();
+    // need to wrap in async IIFE for examples using `await` in top-level
+    var code = `(async() => { ${codeEl.text()} })()`; 
     var context = {
       jsforce: window.jsforce,
       require: function(name){ return window[name]; },

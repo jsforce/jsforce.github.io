@@ -10,13 +10,11 @@ $ npm install jsforce
 ### Example
 
 ```javascript
-var jsforce = require('jsforce');
-var conn = new jsforce.Connection();
-conn.login('username@domain.com', 'password', function(err, res) {
-  if (err) { return console.error(err); }
-  conn.query('SELECT Id, Name FROM Account', function(err, res) {
-    if (err) { return console.error(err); }
-    console.log(res);
-  });
-});
+const jsforce = require('jsforce');
+
+const conn = new jsforce.Connection();
+await conn.login('username@domain.com', 'password')
+
+const res = await conn.query('SELECT Id, Name FROM Account')
+console.log(res)
 ```

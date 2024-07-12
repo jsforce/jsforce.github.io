@@ -17,40 +17,19 @@ To locally download these files, right-click the link and select "Save as..." fr
 
 
 ### All in One Library (jsforce.js)
-- [Development Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.js) - Full source, Uncompressed
-- [Production Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js) - Compressed / [SourceMap](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js.map)
-- [Edge Version (master)](https://raw.github.com/jsforce/jsforce/master/build/jsforce.js) - Unreleased, use at your own risk
+- [Development Version (v<%= @version %>)](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.js) - Full source, Uncompressed
+- [Production Version (v<%= @version %>)](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js) - Compressed / [SourceMap](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js.map)
 
 ### Core (jsforce-core.js)
-- [Development Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-core.js) - Full source, Uncompressed
-- [Production Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-core.min.js) - Compressed / [SourceMap](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-core.min.js.map)
-
-<% for apiname in "analytics,apex,bulk,chatter,metadata,soap,streaming,tooling".split(',') : %>
-### <%= apiname[0].toUpperCase() + apiname.substring(1) %> API (jsforce-api-<%= apiname %>.js)
-- [Development Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-api-<%= apiname %>.js) - Full source, Uncompressed
-- [Production Version (v<%= @version %>)](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-api-<%= apiname %>.min.js) - Compressed / [SourceMap](//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce-api-<%= apiname %>.min.js.map)
-<% end %>
-
-## Using Bower
-
-[Bower](http://bower.io/) is a package manager for web application front-end libraries. JSforce is also available in bower. To install JSforce via bower, type following in your project root:
-
-```
-$ bower install jsforce
-```
-
-You'll get the JSforce script files in `bower_components` directory, so write a tag in HTML to include the file.
-
-```html
-<script src="./bower_components/jsforce/build/jsforce.min.js"></script>
-```
+- [Development Version (v<%= @version %>)](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce-core.js) - Full source, Uncompressed
+- [Production Version (v<%= @version %>)](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce-core.min.js) - Compressed / [SourceMap](https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce-core.min.js.map)
 
 ## Using CDN
 
-JSforce is available from CDN. You can include source directly from [cdnjs](http://cdnjs.com/) so download is not always necessary.
+JSforce is available from CDNs. You can load it directly from [jsDelivr](https://www.jsdelivr.com/) so download is not always necessary.
 
 To include the script, put following script tag :
 
 ```
-<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/<%= @version %>/jsforce.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsforce@<%= @version %>/dist/jsforce.min.js"></script>
 ```
