@@ -32,7 +32,7 @@ if (location.protocol === "http:" && location.hostname !== "localhost") {
 <script src="/asset/jquery/jquery.min.js"></script>
 <script src="/asset/bootstrap/js/bootstrap.min.js"></script>
 <script src="/asset/highlight/highlight.pack.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/jsforce@3.2.2/dist/jsforce.min.js"></script>
 <script>
 jsforce.browser.init({
   clientId: '3MVG9A2kN3Bn17hv5Z.MnUUfJRTgrq0KwgysLOXrljNJ1JB6HijwsXoNi8Imxvwi3b6pknYch_sU771SM1lTh',
@@ -264,15 +264,13 @@ jsforce.browser.on('disconnect', function() {
 <pre><code class="lang-shell">$ npm install jsforce
 </code></pre>
 <h3 id="example">Example</h3>
-<pre><code class="lang-javascript">var jsforce = require(&#39;jsforce&#39;);
-var conn = new jsforce.Connection();
-conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res) {
-  if (err) { return console.error(err); }
-  conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-    if (err) { return console.error(err); }
-    console.log(res);
-  });
-});
+<pre><code class="lang-javascript">const jsforce = require(&#39;jsforce&#39;);
+
+const conn = new jsforce.Connection();
+await conn.login(&#39;username@domain.com&#39;, &#39;password&#39;)
+
+const res = await conn.query(&#39;SELECT Id, Name FROM Account&#39;)
+console.log(res)
 </code></pre>
 
 </div>
@@ -283,18 +281,16 @@ conn.login(&#39;username@domain.com&#39;, &#39;password&#39;, function(err, res)
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-  &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/jsforce@3.2.2/dist/jsforce.min.js&quot;&gt;&lt;/script&gt;
   &lt;script&gt;
-jsforce.browser.init({
-  clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39;,
-  redirectUri: &#39;[ your Salesforce registered redirect URI is here ]&#39;
-});
-jsforce.browser.on(&#39;connect&#39;, function(conn) {
-  conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-    if (err) { return console.error(err); }
-    console.log(res);
-  });
-});
+    jsforce.browser.init({
+      clientId: &#39;[ your Salesforce OAuth2 ClientID is here ]&#39;,
+      redirectUri: &#39;[ your Salesforce registered redirect URI is here ]&#39;
+    });
+    jsforce.browser.on(&#39;connect&#39;, async function(conn) {
+      const res = await conn.query(&#39;SELECT Id, Name FROM Account&#39;)
+      console.log(res);
+    });
   &lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -311,11 +307,9 @@ jsforce.browser.on(&#39;connect&#39;, function(conn) {
 <pre><code class="lang-html">&lt;apex:page docType=&quot;html-5.0&quot; showHeader=&quot;false&quot;&gt;
   &lt;apex:includeScript value=&quot;{!URLFOR($Resource.JSforce)}&quot; /&gt;
   &lt;script&gt;
-var conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
-conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-  if (err) { return console.error(err); }
-  console.log(res);
-});
+    const conn = new jsforce.Connection({ accessToken: &#39;{!$API.Session_Id}&#39; });
+    const res = await conn.query(&#39;SELECT Id, Name FROM Account&#39;);
+    console.log(res);
   &lt;/script&gt;
 &lt;/apex:page&gt;
 </code></pre>
@@ -330,14 +324,12 @@ conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
 &lt;head&gt;
   &lt;meta id=&quot;sf-canvas-signed-request&quot; content=&quot;&lt;%= verifiedSignedRequestJSON %&gt;&quot; /&gt;
   &lt;script src=&quot;https://login.salesforce.com/canvas/sdk/js/42.0/canvas-all.js&quot;&gt;&lt;/script&gt;
-  &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/jsforce@3.2.2/dist/jsforce.min.js&quot;&gt;&lt;/script&gt;
   &lt;script&gt;
-var sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
-var conn = new jsforce.Connection({ signedRequest: sr });
-conn.query(&#39;SELECT Id, Name FROM Account&#39;, function(err, res) {
-  if (err) { return console.error(err); }
-  console.log(res);
-});
+    let sr = document.getElementById(&#39;sf-canvas-signed-request&#39;).content;
+    const conn = new jsforce.Connection({ signedRequest: sr });
+    const res = await conn.query(&#39;SELECT Id, Name FROM Account&#39;);
+    console.log(res);
   &lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
