@@ -129,9 +129,11 @@ a {
 }
 
 #sidebar {
+  height: calc(100vh - 100px);
+  width: 220px;
+  overflow-y: auto;
   &.affix {
     top: 90px;
-    width: 220px;
   }
   ul {
     a {
